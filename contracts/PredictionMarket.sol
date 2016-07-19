@@ -9,10 +9,11 @@ contract PredictionMarket {
   AnswerToken public yes;
   AnswerToken public no;
   AnswerToken winner;
-  uint payout;
-  uint totalFees;
+  uint public payout;
+  uint public totalFees;
+  uint public feeRate;  // value 100 means 1%
 
-  function PredictionMarket(string _question, uint _expirationTime, address _responder) {
+  function PredictionMarket(string _question, uint _expirationTime, address _responder, uint _feeRate) {
     if (_expirationTime <= now) throw;
     if (_responder == 0) throw;
     if (msg.value < 1 finney) throw;
@@ -20,6 +21,7 @@ contract PredictionMarket {
     expiration = _expirationTime;
     responder = _responder;
     owner = msg.sender;
+    feeRate = _feeRate;
 
     tokensInitialSupply = msg.value / 500 szabo;
 
@@ -28,15 +30,13 @@ contract PredictionMarket {
   }
 
   modifier onlyBefore(uint _when) {
-    if (now < _when) {
-      _
-    }
+    if (now >= _when) throw;
+    _
   }
 
   modifier onlyAfter(uint _when) {
-    if (now >= _when) {
-      _
-    }
+    if (now < _when) throw;
+    _
   }
 
   modifier onlyBy(address _account)
@@ -73,12 +73,11 @@ contract PredictionMarket {
 
   function bid(AnswerToken _bidTo, AnswerToken _opposite) private returns (uint) {
     uint price = getPrice(_bidTo, _opposite);
-    uint fees = msg.value / 100;
+    uint fees = (msg.value / 10000) * feeRate;
     uint qty = (msg.value - fees) / price;
     if (qty == 0) throw;
     // if there is a change it is not returned back but it becomes part of the prize
     _bidTo.assignTo(msg.sender, qty);
-    if (!owner.send(fees)) throw;
     totalFees += fees;
     return qty;
   }
@@ -141,6 +140,15 @@ contract PredictionMarket {
       no.takeAway(msg.sender);
       if (!msg.sender.send(bids * payout)) throw;
     }
+  }
+
+  function withdrawFees()
+    onlyBy(owner)
+    hasWinner
+  {
+    var amount = totalFees;
+    totalFees = 0;
+    if (!owner.send(amount)) throw;
   }
 
   function destroy()

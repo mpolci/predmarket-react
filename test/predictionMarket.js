@@ -59,16 +59,16 @@ contract('PredictionMarket', accounts => {
 
   describe('constructor', () => {
     it('should create predictionMarket', () => {
-      return PredictionMarket.new(question, now + 1, responder, { from: owner, value: oneFinney })
+      return PredictionMarket.new(question, now + 1, responder, 100, { from: owner, value: oneFinney })
     })
     it('should fail if initial balance is less than 1 finney', () => {
-      return shouldFail(PredictionMarket.new(question, now + 1, responder, {from: owner, value: oneFinney.minus(1)}))
+      return shouldFail(PredictionMarket.new(question, now + 1, responder, 100, {from: owner, value: oneFinney.minus(1)}))
     })
     it('should fail if already expired', () => {
-      return shouldFail(PredictionMarket.new(question, now - 1, responder, {from: owner, value: oneFinney}))
+      return shouldFail(PredictionMarket.new(question, now - 1, responder, 100, {from: owner, value: oneFinney}))
     })
     it('should initialize yes and no tokens', () => {
-      return PredictionMarket.new(question, now + 1, responder, { from: owner, value: oneFinney })
+      return PredictionMarket.new(question, now + 1, responder, 100, { from: owner, value: oneFinney })
       .then(contract => {pMarket = contract})
       .then(() => pMarket.yes.call())
       .then(address => assert.notEqual(address, 0))
@@ -76,17 +76,17 @@ contract('PredictionMarket', accounts => {
       .then(address => assert.notEqual(address, 0))
     })
     it('should initialize question', () => {
-      return PredictionMarket.new(question, now + 1, responder, { from: owner, value: oneFinney })
+      return PredictionMarket.new(question, now + 1, responder, 100, { from: owner, value: oneFinney })
       .then(contract => contract.question.call())
       .then(value => assert.equal(value, question))
     })
     it('should initialize expiration', () => {
-      return PredictionMarket.new(question, now + 1, responder, { from: owner, value: oneFinney })
+      return PredictionMarket.new(question, now + 1, responder, 100, { from: owner, value: oneFinney })
       .then(contract => contract.expiration.call())
       .then(value => assert.equal(value.toNumber(), now + 1))
     })
-    it('should initialize allocate 2 yes tokens', () => {
-      return PredictionMarket.new(question, now + 1, responder, { from: owner, value: oneFinney })
+    it('should initialize allocate 2 yes and no tokens', () => {
+      return PredictionMarket.new(question, now + 1, responder, 100, { from: owner, value: oneFinney })
       .then(contract => {pMarket = contract})
       .then(() => pMarket.yes.call())
       .then(address => AnswerToken.at(address).totalSupply.call())
@@ -95,8 +95,8 @@ contract('PredictionMarket', accounts => {
       .then(address => AnswerToken.at(address).totalSupply.call())
       .then(value => assert.equal(value.toNumber(), 2, 'no tokens'))
     })
-    it('should initialize allocate 10 yes tokens', () => {
-      return PredictionMarket.new(question, now + 1, responder, { from: owner, value: 5 * oneFinney })
+    it('should initialize allocate 10 yes and no tokens', () => {
+      return PredictionMarket.new(question, now + 1, responder, 100, { from: owner, value: 5 * oneFinney })
       .then(contract => {pMarket = contract})
       .then(() => pMarket.yes.call())
       .then(address => AnswerToken.at(address).totalSupply.call())
@@ -105,12 +105,20 @@ contract('PredictionMarket', accounts => {
       .then(address => AnswerToken.at(address).totalSupply.call())
       .then(value => assert.equal(value.toNumber(), 10, 'no tokens'))
     })
+    it('should have no verdict ', () => {
+      return pMarket.getVerdict.call()
+      .then(value => assert.equal(value, 0))
+    })
+    it('should have no payout ', () => {
+      return pMarket.payout.call()
+      .then(value => assert.equal(value, 0))
+    })
   })
 
   describe('operations', () => {
     beforeEach(done => {
       expiration = now + 1
-      PredictionMarket.new(question, expiration, responder, { from: owner, value: 5 * oneFinney })
+      PredictionMarket.new(question, expiration, responder, 100, { from: owner, value: 5 * oneFinney })
       .then(contract => { pMarket = contract })
       .then(() => pMarket.yes.call())
       .then(address => { yesToken = AnswerToken.at(address) })
@@ -118,27 +126,13 @@ contract('PredictionMarket', accounts => {
       .then(address => { noToken = AnswerToken.at(address) })
       .then(() => done()).catch(done)
     })
-    // describe('xxx', () => {
-    //   it('prova', (done) => {
-    //     var block = web3.eth.getBlock('latest')
-    //     console.log(block.timestamp);
-    //     console.log(now);
-    //     web3.evm.setTimestamp(now)
-    //     .then(() => {
-    //       var block = web3.eth.getBlock('latest')
-    //       console.log(block.timestamp);
-    //       done()
-    //     })
-    //   })
-    // })
 
-    describe.only('bid', () => {
+    describe('bid to yes', () => {
       it('price shoult be 500 szabo', () => {
         return pMarket.getYesPrice.call()
         .then(value => assert.equal(value.toNumber(), 500 * oneSzabo))
       })
       it('price shoult be 666 szabo', () => {
-        //return pMarket.bidYes({from: accounts[3], value: 5051 * oneSzabo})
         return pMarket.bidYes({from: accounts[3], value: 5051 * oneSzabo})
         .then(() => pMarket.getYesPrice.call())
         .then(value => assert.equal(value.toNumber(), 666666666666666))
@@ -155,7 +149,7 @@ contract('PredictionMarket', accounts => {
         return pMarket.bidYes({from: accounts[2], value: 506 * oneSzabo})
       })
       let failingTests = [
-        { prebid:  5051, bid: 666 },    // 20 yes 10 no
+        { prebid:  5051, bid: 673 },    // 20 yes 10 no
         { prebid: 10102, bid: 757 },    // 30 yes 10 no
       ]
       failingTests.forEach(testCase => {
@@ -164,15 +158,14 @@ contract('PredictionMarket', accounts => {
           .then(() => shouldFail(pMarket.bidYes({from: accounts[2], value: testCase.bid * oneSzabo})))
         })
       })
-
       let tests = [
-        { prebid: 0, bid: 506, expectedTokens: 1},     // 10 yes 10 no
+        { prebid: 0, bid: 506, expectedTokens: 1},      // 10 yes 10 no - effective price = 500 szabo + 1%
         { prebid: 0, bid: 1010, expectedTokens: 1},
         { prebid: 0, bid: 1011, expectedTokens: 2},
-        { prebid: 5051, bid:  667, expectedTokens: 1}, // 20 yes 10 no
-        { prebid: 5051, bid: 1333, expectedTokens: 1},
-        { prebid: 5051, bid: 1334, expectedTokens: 2},
-
+        { prebid:  5051, bid:  674, expectedTokens: 1}, // 20 yes 10 no - effective price = 666666666666666 wei + 1%
+        { prebid:  5051, bid: 1346, expectedTokens: 1},
+        { prebid:  5051, bid: 1347, expectedTokens: 2},
+        { prebid: 10102, bid:  758, expectedTokens: 1}, // 30 yes 10 no - effective price = 750 szabo + 1%
       ]
       tests.forEach(testCase => {
         it(`should get ${testCase.expectedTokens} tokens with ${testCase.bid} szabo`, () => {
@@ -183,8 +176,86 @@ contract('PredictionMarket', accounts => {
           .then(value => assert.equal(value.toNumber(), testCase.expectedTokens))
         })
       })
+      it('should fail after expiration', () => {
+        return web3.evm.setTimestamp(expiration + 1)
+        .then(() => shouldFail(pMarket.bidYes({from: accounts[2], value: oneFinney})))
+      })
+      it('should increase fees', () => {
+        return pMarket.bidYes({from: accounts[3], value: 674 * oneSzabo})
+        .then(() => pMarket.totalFees.call())
+        .then(value => assert.equal(value.toNumber(), 674 * oneSzabo / 100))
+      })
+    })
 
+    describe('bid to no', () => {
+      // TODO
+    })
 
+    describe('answer', () => {
+      // beforeEach(done => {
+      //   web3.evm.setTimestamp(expiration + 1)
+      //   .then(() => done()).catch(done)
+      // })
+      it('should fail if not responder', () => {
+        return web3.evm.setTimestamp(expiration + 1)
+        .then(() => shouldFail(pMarket.answer(true, from2)))
+      })
+      it('should fail before expiration', () => {
+        return shouldFail(pMarket.answer(true, fromResponder))
+      })
+      it('should fail after response time', () => {
+        return web3.evm.setTimestamp(expiration + 7 * 24 * 60 * 60 + 1)
+        .then(() => shouldFail(pMarket.answer(true, fromResponder)))
+      })
+      it('should accept response', () => {
+        return web3.evm.setTimestamp(expiration + 1)
+        .then(() => pMarket.answer(true, fromResponder))
+      })
+      it('should not have effect if try to change response', () => {
+        let vertict
+        return web3.evm.setTimestamp(expiration + 1)
+        .then(() => pMarket.answer(true, fromResponder))
+        .then(() => pMarket.answer(false, fromResponder))
+        .then(() => pMarket.getVerdict.call())
+        .then(value => assert.equal(value, 1))
+      })
+      it('should change verdict to 1', () => {
+        return web3.evm.setTimestamp(expiration + 1)
+        .then(() => pMarket.answer(true, fromResponder))
+        .then(() => pMarket.getVerdict.call())
+        .then(value => assert.equal(value, 1))
+      })
+      it('should change verdict to 2', () => {
+        return web3.evm.setTimestamp(expiration + 1)
+        .then(() => pMarket.answer(false, fromResponder))
+        .then(() => pMarket.getVerdict.call())
+        .then(value => assert.equal(value, 2))
+      })
+      it('should set payout to 500 szabo', () => {
+        return web3.evm.setTimestamp(expiration + 1)
+        .then(() => pMarket.answer(false, fromResponder))
+        .then(() => pMarket.payout.call())
+        .then(value => assert.equal(value.toNumber(), 500 * oneSzabo))
+      })
+      it('should set payout to 1 finney', () => {
+        return pMarket.bidYes({from: accounts[2], value: 5050505050505000})
+        .then(() => web3.evm.setTimestamp(expiration + 1))
+        .then(() => pMarket.answer(false, fromResponder))
+        .then(() => pMarket.payout.call())
+        .then(value => assert.equal(value.toNumber(), oneFinney))
+      })
+    })
+
+    describe('withdrawPrize', () => {
+      // TODO
+    })
+
+    describe('withdrawFees', () => {
+      // TODO
+    })
+
+    describe('withdraw', () => {
+      // TODO
     })
 
   })

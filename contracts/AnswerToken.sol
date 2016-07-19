@@ -11,8 +11,9 @@ contract AnswerToken {
     //balanceOf[predictionMarket] = _initialSupply;
   }
 
-  modifier only_pmarket() {
-    if (msg.sender != predictionMarket) throw;
+  modifier onlyBy(address _account)
+  {
+    if (msg.sender != _account) throw;
     _
   }
 
@@ -28,7 +29,7 @@ contract AnswerToken {
   }
 
   function assignTo(address _to, uint _qty)
-    only_pmarket
+    onlyBy(predictionMarket)
     only_valid_address(_to)
   {
     balanceOf[_to] += _qty;
@@ -36,14 +37,14 @@ contract AnswerToken {
   }
 
   function takeAway(address _to)
-    only_pmarket
+    onlyBy(predictionMarket)
   {
     totalSupply -= balanceOf[_to];
     balanceOf[_to] = 0;
   }
 
   function destroy()
-    only_pmarket
+    onlyBy(predictionMarket)
   {
     selfdestruct(predictionMarket);
   }
