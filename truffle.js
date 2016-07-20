@@ -10,7 +10,7 @@ module.exports = {
     "images/": "images/"
   },
   deploy: [
-
+    "AddressesIndex"
   ],
   rpc: {
     host: "localhost",
