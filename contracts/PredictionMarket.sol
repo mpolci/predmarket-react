@@ -46,9 +46,8 @@ contract PredictionMarket {
   }
 
   modifier hasWinner() {
-    if (address(winner) != 0) {
+    if (address(winner) == 0) throw;
       _
-    }
   }
 
   modifier unanswered() {

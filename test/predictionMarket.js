@@ -244,20 +244,63 @@ contract('PredictionMarket', accounts => {
         .then(() => pMarket.payout.call())
         .then(value => assert.equal(value.toNumber(), oneFinney))
       })
-    })
+    }),
 
-    describe('withdrawPrize', () => {
-      // TODO
-    })
+    describe('withdraws', () => {
+      beforeEach(done => {
+        Promise.resolve()
+        // .then(() => yesToken.totalSupply.call()).then(value => console.log(value.toNumber()))
+        // .then(() => noToken.totalSupply.call()).then(value => console.log(value.toNumber()))
+        // .then(() => pMarket.getYesPrice.call()).then(value => console.log(value.toNumber()))
+        // .then(() => pMarket.getNoPrice.call()).then(value => console.log(value.toNumber()))
+        .then(() => pMarket.bidYes({from: accounts[2], value: 5050505050505000}))  // 10 yes tokens
+        .then(() => pMarket.bidNo({from: accounts[3], value: 6734006734006700}))  // 20 no tokens
+        .then(() => done()).catch(done)
+      })
+      describe('withdrawPrize', () => {
+        // TODO
+        it.only('should fail if no verdict', () => {
+        })
+        it('should fail if no bids', () => {
+        })
+        it('should send X', () => {
+        })
+        it('should not send ethers two times', () => {
+        })
+        it('should fail if send fails', () => {
+        })
+      })
 
-    describe('withdrawFees', () => {
-      // TODO
-    })
+      describe('withdrawFees', () => {
+        // TODO
+        it('should fail if no verdict', () => {
+        })
+        it('should fail if no owner', () => {
+        })
+        it('should send fees', () => {
+        })
+        it('should not send fees two times', () => {
+        })
+        it('should fail if send fails', () => {
+        })
+      })
 
-    describe('withdraw', () => {
-      // TODO
+      describe('withdraw', () => {
+        // TODO
+        it('should fail if there is a verdict', () => {
+        })
+        it('should fail before time limit for responder', () => {
+        })
+        it('should set payout', () => {
+        })
+        it('should send X', () => {
+        })
+        it('should not send ethers two times', () => {
+        })
+        it('should fail if send fails', () => {
+        })
+      })
     })
-
   })
 
 })
