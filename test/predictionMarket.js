@@ -212,13 +212,11 @@ contract('PredictionMarket', accounts => {
         return web3.evm.setTimestamp(expiration + 1)
         .then(() => pMarket.answer(true, fromResponder))
       })
-      it('should not have effect if try to change response', () => {
+      it('should fail if try to change response', () => {
         let vertict
         return web3.evm.setTimestamp(expiration + 1)
         .then(() => pMarket.answer(true, fromResponder))
-        .then(() => pMarket.answer(false, fromResponder))
-        .then(() => pMarket.getVerdict.call())
-        .then(value => assert.equal(value, 1))
+        .then(() => shouldFail(pMarket.answer(false, fromResponder)))
       })
       it('should change verdict to 1', () => {
         return web3.evm.setTimestamp(expiration + 1)
@@ -247,7 +245,7 @@ contract('PredictionMarket', accounts => {
       })
     }),
 
-    describe('withdraws', () => {
+    describe('withdrawals', () => {
       let balance = []
       let bids = []
       let pmBalance
@@ -288,7 +286,7 @@ contract('PredictionMarket', accounts => {
         .then(() => collectData())
         .then(() => done()).catch(done)
       })
-      describe.skip('withdrawPrize', () => {
+      describe('withdrawPrize', () => {
         it('should fail if no verdict', () => {
           return shouldFail(pMarket.withdrawPrize(from2))
         })
@@ -320,7 +318,7 @@ contract('PredictionMarket', accounts => {
         })
       })
 
-      describe.skip('withdrawFees', () => {
+      describe('withdrawFees', () => {
         it('should fail if no verdict', () => {
           return shouldFail(pMarket.withdrawFees(fromOwner))
         })
@@ -347,7 +345,7 @@ contract('PredictionMarket', accounts => {
         })
       })
 
-      describe.only('withdraw', () => {
+      describe('withdraw', () => {
         let expectedPayout
         beforeEach(done => {
           // add new 20 bids to the already existing 30 bids
