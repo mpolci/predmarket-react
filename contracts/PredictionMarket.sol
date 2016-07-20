@@ -10,7 +10,6 @@ contract PredictionMarket {
   AnswerToken public no;
   AnswerToken winner;
   uint public payout;
-  uint public totalFees;
   uint public feeRate;  // value 100 means 1%
 
   function PredictionMarket(string _question, uint _expirationTime, address _responder, uint _feeRate) {
@@ -47,13 +46,12 @@ contract PredictionMarket {
 
   modifier hasWinner() {
     if (address(winner) == 0) throw;
-      _
+    _
   }
 
   modifier unanswered() {
-    if (address(winner) == 0) {
-      _
-    }
+    if (address(winner) != 0) throw;
+    _
   }
 
   function getPrice(AnswerToken _bidTo, AnswerToken _opposite) private returns (uint) {
@@ -72,12 +70,10 @@ contract PredictionMarket {
 
   function bid(AnswerToken _bidTo, AnswerToken _opposite) private returns (uint) {
     uint price = getPrice(_bidTo, _opposite);
-    uint fees = (msg.value / 10000) * feeRate;
-    uint qty = (msg.value - fees) / price;
+    uint qty = msg.value / price;
     if (qty == 0) throw;
     // if there is a change it is not returned back but it becomes part of the prize
     _bidTo.assignTo(msg.sender, qty);
-    totalFees += fees;
     return qty;
   }
 
@@ -99,6 +95,10 @@ contract PredictionMarket {
     return this.balance;
   }
 
+  function totalFees() constant returns (uint) {
+    return (this.balance / 10000) * feeRate;
+  }
+
   function answer(bool isYes)
     onlyBy(responder)
     unanswered
@@ -106,7 +106,7 @@ contract PredictionMarket {
     onlyBefore(expiration + 1 weeks)
   {
     winner = isYes ? yes : no;
-    payout = (this.balance - totalFees) / winner.totalSupply();
+    payout = (this.balance - totalFees()) / winner.totalSupply();
   }
 
   function getVerdict() constant returns (uint8) {
@@ -134,20 +134,20 @@ contract PredictionMarket {
       payout = this.balance / totalBids;
     }
     uint bids = yes.balanceOf(msg.sender) + no.balanceOf(msg.sender);
-    if (bids > 0) {
-      yes.takeAway(msg.sender);
-      no.takeAway(msg.sender);
-      if (!msg.sender.send(bids * payout)) throw;
-    }
+    if (bids == 0) throw;
+    yes.takeAway(msg.sender);
+    no.takeAway(msg.sender);
+    var amount = bids * payout;
+    if (amount == 0 || !msg.sender.send(amount)) throw;
   }
 
   function withdrawFees()
     onlyBy(owner)
     hasWinner
   {
-    var amount = totalFees;
-    totalFees = 0;
-    if (!owner.send(amount)) throw;
+    var amount = totalFees();
+    feeRate = 0;
+    if (amount == 0 || !owner.send(amount)) throw;
   }
 
   function destroy()

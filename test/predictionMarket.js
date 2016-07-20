@@ -50,6 +50,7 @@ contract('PredictionMarket', accounts => {
   const question = "ETH price will be over 50$"
   const oneFinney = web3.toBigNumber(web3.toWei(1, 'finney'))
   const oneSzabo = web3.toBigNumber(web3.toWei(1, 'szabo'))
+  const week = 7 * 24 * 60 * 60
 
   beforeEach((done) => {
     now = Math.floor(Date.now()/1000)
@@ -133,24 +134,24 @@ contract('PredictionMarket', accounts => {
         .then(value => assert.equal(value.toNumber(), 500 * oneSzabo))
       })
       it('price shoult be 666 szabo', () => {
-        return pMarket.bidYes({from: accounts[3], value: 5051 * oneSzabo})
+        return pMarket.bidYes({from: accounts[3], value: 5000 * oneSzabo})
         .then(() => pMarket.getYesPrice.call())
         .then(value => assert.equal(value.toNumber(), 666666666666666))
       })
       it('price shoult be 750 szabo', () => {
-        return pMarket.bidYes({from: accounts[3], value: 10102 * oneSzabo})
+        return pMarket.bidYes({from: accounts[3], value: 10000 * oneSzabo})
         .then(() => pMarket.getYesPrice.call())
         .then(value => assert.equal(value.toNumber(), 750 * oneSzabo))
       })
-      it('should fail with 505 szabo', () => {
-        return shouldFail(pMarket.bidYes({from: accounts[2], value: 505 * oneSzabo}))
+      it('should fail with 499 szabo', () => {
+        return shouldFail(pMarket.bidYes({from: accounts[2], value: 499 * oneSzabo}))
       })
-      it('should bid with 506 szabo', () => {
-        return pMarket.bidYes({from: accounts[2], value: 506 * oneSzabo})
+      it('should bid with 500 szabo', () => {
+        return pMarket.bidYes({from: accounts[2], value: 500 * oneSzabo})
       })
       let failingTests = [
-        { prebid:  5051, bid: 673 },    // 20 yes 10 no
-        { prebid: 10102, bid: 757 },    // 30 yes 10 no
+        { prebid:  5000, bid: 666 },    // 20 yes 10 no
+        { prebid: 10000, bid: 749 },    // 30 yes 10 no
       ]
       failingTests.forEach(testCase => {
         it(`should fail with ${testCase.bid} szabo`, () => {
@@ -159,13 +160,13 @@ contract('PredictionMarket', accounts => {
         })
       })
       let tests = [
-        { prebid: 0, bid: 506, expectedTokens: 1},      // 10 yes 10 no - effective price = 500 szabo + 1%
-        { prebid: 0, bid: 1010, expectedTokens: 1},
-        { prebid: 0, bid: 1011, expectedTokens: 2},
-        { prebid:  5051, bid:  674, expectedTokens: 1}, // 20 yes 10 no - effective price = 666666666666666 wei + 1%
-        { prebid:  5051, bid: 1346, expectedTokens: 1},
-        { prebid:  5051, bid: 1347, expectedTokens: 2},
-        { prebid: 10102, bid:  758, expectedTokens: 1}, // 30 yes 10 no - effective price = 750 szabo + 1%
+        { prebid: 0, bid:  500, expectedTokens: 1},      // 10 yes 10 no - price = 500 szabo
+        { prebid: 0, bid:  999, expectedTokens: 1},
+        { prebid: 0, bid: 1000, expectedTokens: 2},
+        { prebid:  5000, bid:  667, expectedTokens: 1}, // 20 yes 10 no - price = 666666666666666 wei
+        { prebid:  5000, bid: 1333, expectedTokens: 1},
+        { prebid:  5000, bid: 1334, expectedTokens: 2},
+        { prebid: 10000, bid:  750, expectedTokens: 1}, // 30 yes 10 no - price = 750 szabo
       ]
       tests.forEach(testCase => {
         it(`should get ${testCase.expectedTokens} tokens with ${testCase.bid} szabo`, () => {
@@ -183,7 +184,7 @@ contract('PredictionMarket', accounts => {
       it('should increase fees', () => {
         return pMarket.bidYes({from: accounts[3], value: 674 * oneSzabo})
         .then(() => pMarket.totalFees.call())
-        .then(value => assert.equal(value.toNumber(), 674 * oneSzabo / 100))
+        .then(value => assert.equal(value.toNumber(), 5674 * oneSzabo / 100))
       })
     })
 
@@ -204,7 +205,7 @@ contract('PredictionMarket', accounts => {
         return shouldFail(pMarket.answer(true, fromResponder))
       })
       it('should fail after response time', () => {
-        return web3.evm.setTimestamp(expiration + 7 * 24 * 60 * 60 + 1)
+        return web3.evm.setTimestamp(expiration + week + 1)
         .then(() => shouldFail(pMarket.answer(true, fromResponder)))
       })
       it('should accept response', () => {
@@ -231,73 +232,185 @@ contract('PredictionMarket', accounts => {
         .then(() => pMarket.getVerdict.call())
         .then(value => assert.equal(value, 2))
       })
-      it('should set payout to 500 szabo', () => {
+      it('should set payout to 495 szabo', () => {
         return web3.evm.setTimestamp(expiration + 1)
         .then(() => pMarket.answer(false, fromResponder))
         .then(() => pMarket.payout.call())
-        .then(value => assert.equal(value.toNumber(), 500 * oneSzabo))
+        .then(value => assert.equal(value.toNumber(), 495 * oneSzabo))
       })
-      it('should set payout to 1 finney', () => {
-        return pMarket.bidYes({from: accounts[2], value: 5050505050505000})
+      it('should set payout to 990 szabo', () => {
+        return pMarket.bidYes({from: accounts[2], value: 5 * oneFinney })
         .then(() => web3.evm.setTimestamp(expiration + 1))
         .then(() => pMarket.answer(false, fromResponder))
         .then(() => pMarket.payout.call())
-        .then(value => assert.equal(value.toNumber(), oneFinney))
+        .then(value => assert.equal(value.toNumber(), 990 * oneSzabo))
       })
     }),
 
     describe('withdraws', () => {
+      let balance = []
+      let bids = []
+      let pmBalance
+      let totalFees
+      function collectData() {
+        function collectBids(idx) {
+          return Promise.all([
+            yesToken.balanceOf(accounts[idx]),
+            noToken.balanceOf(accounts[idx])
+          ]).then(values => { bids[idx] = values[0].add(values[1]) })
+        }
+        return Promise.all([
+          collectBids(2),
+          collectBids(3),
+          collectBids(4),
+        ])
+        .then(() => pMarket.totalFees.call())
+        .then(fees => {
+          totalFees = fees
+          pmBalance = web3.eth.getBalance(pMarket.address)
+          for (let i = 0; i <= 4; i++)
+            balance[i] = web3.eth.getBalance(accounts[i])
+        })
+      }
       beforeEach(done => {
         Promise.resolve()
+        .then(() => pMarket.bidYes({from: accounts[2], value: 5 * oneFinney}))   // 10 yes tokens -> 20 total supply
+        .then(() => pMarket.bidNo({from: accounts[3], value: 6666666666666660}))  // 20 no tokens -> 30 tatal supply
+        // contract balance: 16666666666666660 (16 finney)
+
+        // .then(() => pMarket.prizePool.call()).then(value => console.log(value.toNumber()))
         // .then(() => yesToken.totalSupply.call()).then(value => console.log(value.toNumber()))
         // .then(() => noToken.totalSupply.call()).then(value => console.log(value.toNumber()))
         // .then(() => pMarket.getYesPrice.call()).then(value => console.log(value.toNumber()))
         // .then(() => pMarket.getNoPrice.call()).then(value => console.log(value.toNumber()))
-        .then(() => pMarket.bidYes({from: accounts[2], value: 5050505050505000}))  // 10 yes tokens
-        .then(() => pMarket.bidNo({from: accounts[3], value: 6734006734006700}))  // 20 no tokens
+
+        .then(() => web3.evm.setTimestamp(expiration + 1))
+        .then(() => collectData())
         .then(() => done()).catch(done)
       })
-      describe('withdrawPrize', () => {
-        // TODO
-        it.only('should fail if no verdict', () => {
+      describe.skip('withdrawPrize', () => {
+        it('should fail if no verdict', () => {
+          return shouldFail(pMarket.withdrawPrize(from2))
         })
         it('should fail if no bids', () => {
+          return pMarket.answer(true, fromResponder)
+          .then(() => shouldFail(pMarket.withdrawPrize({from: accounts[4]})))
         })
-        it('should send X', () => {
+        it('should fail if no winning bids', () => {
+          return pMarket.answer(true, fromResponder)
+          .then(() => shouldFail(pMarket.withdrawPrize({from: accounts[3]})))
+        })
+        it('should send X if winner', () => {
+          return pMarket.answer(true, fromResponder)
+          .then(() => pMarket.withdrawPrize({from: accounts[2]}))
+          .then(txid => {
+            let gas = web3.eth.getTransactionReceipt(txid).gasUsed
+            let transfered = web3.eth.getBalance(accounts[2]).minus(balance[2]).plus(gas).toNumber()
+            let expected = pmBalance.minus(totalFees).div(20).mul(10).toNumber()
+            assert.equal(transfered, expected)
+          })
         })
         it('should not send ethers two times', () => {
+          return pMarket.answer(true, fromResponder)
+          .then(() => pMarket.withdrawPrize({from: accounts[2]}))
+          .then(() => shouldFail(pMarket.withdrawPrize({from: accounts[2]})))
         })
-        it('should fail if send fails', () => {
+        it.skip('should fail if send fails', () => {
+          // TODO
         })
       })
 
-      describe('withdrawFees', () => {
-        // TODO
+      describe.skip('withdrawFees', () => {
         it('should fail if no verdict', () => {
+          return shouldFail(pMarket.withdrawFees(fromOwner))
         })
-        it('should fail if no owner', () => {
+        it('should fail if not owner', () => {
+          return pMarket.answer(true, fromResponder)
+          .then(() => shouldFail(pMarket.withdrawFees({from: accounts[4]})))
         })
         it('should send fees', () => {
+          return pMarket.answer(true, fromResponder)
+          .then(() => pMarket.withdrawFees(fromOwner))
+          .then(txid => {
+            let gas = web3.eth.getTransactionReceipt(txid).gasUsed
+            let transfered = web3.eth.getBalance(accounts[0]).minus(balance[0]).plus(gas).toNumber()
+            assert.equal(transfered, totalFees.toNumber())
+          })
         })
         it('should not send fees two times', () => {
+          return pMarket.answer(true, fromResponder)
+          .then(() => pMarket.withdrawFees(fromOwner))
+          .then(() => shouldFail(pMarket.withdrawFees(fromOwner)))
         })
-        it('should fail if send fails', () => {
+        it.skip('should fail if send fails', () => {
+          // TODO
         })
       })
 
-      describe('withdraw', () => {
-        // TODO
+      describe.only('withdraw', () => {
+        let expectedPayout
+        beforeEach(done => {
+          // add new 20 bids to the already existing 30 bids
+          web3.evm.setTimestamp(expiration - 1)
+          .then(() => pMarket.bidYes({from: accounts[4], value: 4 * oneFinney}))   // 10 yes tokens -> 30 total supply
+          .then(() => pMarket.bidNo({from: accounts[4], value: 5 * oneFinney}))    // 10 no tokens -> 30 total supply
+          .then(() => collectData())
+          .then(() => { expectedPayout = pmBalance.div(50).trunc() })
+          .then(() => web3.evm.setTimestamp(expiration + 1))
+          .then(() => done()).catch(done)
+        })
         it('should fail if there is a verdict', () => {
+          return pMarket.answer(true, fromResponder)
+          .then(() => shouldFail(pMarket.withdraw(from2)))
         })
         it('should fail before time limit for responder', () => {
+          return shouldFail(pMarket.withdraw(from2))
+        })
+        it('should success after time limit for responder', () => {
+          return web3.evm.setTimestamp(expiration + week + 1)
+          .then(() => pMarket.withdraw(from2))
+        })
+        it('should fail if no bids', () => {
+          return web3.evm.setTimestamp(expiration + week + 1)
+          .then(() => shouldFail(pMarket.withdraw({from: accounts[5]})))
+        })
+        it('owner could not withdraw', () => {
+          return web3.evm.setTimestamp(expiration + week + 1)
+        .then(() => shouldFail(pMarket.withdraw(fromOwner)))
         })
         it('should set payout', () => {
+          return web3.evm.setTimestamp(expiration + week + 1)
+          .then(() => pMarket.withdraw(from2))
+          .then(() => pMarket.payout.call())
+          .then(value => assert.equal(value.toNumber(), expectedPayout.toNumber()))
         })
-        it('should send X', () => {
+        it('should send 10 times the payout', () => {
+          return web3.evm.setTimestamp(expiration + week + 1)
+          .then(() => pMarket.withdraw(from2))
+          .then(txid => {
+            let gas = web3.eth.getTransactionReceipt(txid).gasUsed
+            let transfered = web3.eth.getBalance(accounts[2]).minus(balance[2]).plus(gas).toNumber()
+            let expected = expectedPayout.mul(10).toNumber()
+            assert.equal(transfered, expected)
+          })
+        })
+        it('should send payout for both yes and no tokens', () => {
+          return web3.evm.setTimestamp(expiration + week + 1)
+          .then(() => pMarket.withdraw({from: accounts[4]}))
+          .then(txid => {
+            let gas = web3.eth.getTransactionReceipt(txid).gasUsed
+            let transfered = web3.eth.getBalance(accounts[4]).minus(balance[4]).plus(gas).toNumber()
+            let expected = expectedPayout.mul(20).toNumber()
+            assert.equal(transfered, expected)
+          })
         })
         it('should not send ethers two times', () => {
+          return web3.evm.setTimestamp(expiration + week + 1)
+          .then(() => pMarket.withdraw(from2))
+          .then(() => shouldFail(pMarket.withdraw(from2)))
         })
-        it('should fail if send fails', () => {
+        it.skip('should fail if send fails', () => {
+          // TODO
         })
       })
     })
