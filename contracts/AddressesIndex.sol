@@ -9,7 +9,9 @@ contract AddressesIndex {
     return index[msg.sender];
   }
 
+  /*
   function remove(uint idx) {
     delete index[msg.sender][idx];
   }
+  */
 }
