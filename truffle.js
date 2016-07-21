@@ -4,13 +4,17 @@ module.exports = {
     "app.js": [
       "javascripts/app.js"
     ],
+    "angularapp.js": [
+      "javascripts/angular/*.js"
+    ],
     "app.css": [
       "stylesheets/app.css"
     ],
     "images/": "images/"
   },
   deploy: [
-    "AddressesIndex"
+    "AddressesIndex",
+    "AddressSet"
   ],
   rpc: {
     host: "localhost",
