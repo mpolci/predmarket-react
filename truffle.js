@@ -5,7 +5,12 @@ module.exports = {
       "javascripts/app.js"
     ],
     "angularapp.js": [
-      "javascripts/angular/*.js"
+      "javascripts/angular/routes.js",
+      "javascripts/angular/state.factory.js",
+      "javascripts/angular/predictionMarket.service.js",
+      "javascripts/angular/controlAccount.controller.js",
+      "javascripts/angular/predictionMarkets.controller.js",
+      "javascripts/angular/createMarket.controller.js",
     ],
     "app.css": [
       "stylesheets/app.css"
@@ -13,8 +18,8 @@ module.exports = {
     "images/": "images/"
   },
   deploy: [
-    "AddressesIndex",
     "AddressSet",
+    "PredictionMarketsIndex"
   ],
   rpc: {
     host: "localhost",

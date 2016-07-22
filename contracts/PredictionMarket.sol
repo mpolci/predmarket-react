@@ -1,11 +1,12 @@
 /*
   Prediction market beavior:
   - the account that creates the contract becomes the contract owner
-  - the contract creation should transfer at least 1 finney, and the transfered value is the initial prize
+  - the contract creation should transfer at least 1 finney, and the whole transfered value is the initial prize
   - the contract creation should specify the question, the expiration time, the address of the responder account and the fee rate
   - the contract creation assign to the owner a number of bids for both yes and no replies, the number of bids is equal to n = trasfered value / 0.5 finney (n bids for yes and n for no)
   - the price for a bid is calculated as 1 finney * x / total bids, where x is the number of previous bids for current bid type (yes or no), and total bids is the total number of both bids types
   - the bids can be buyed before the expiration time
+  - no change is returned back if the transfered value for bid is not an exact multiple of the price
   - the responder account can give a verdict after the expiration time within a week
   - after the responder has given the verdict, the winners users can withdraw the prize (also the owner have some bids for the initial prize)
   - after the responder has given the verdict, the owner can withdraw the fees
@@ -17,14 +18,15 @@
   Possible improvements:
   - payment of the responder
   - parameterize the constants
+  - send back the change if the transfered value is not multiple of the bid price
 */
 import 'AnswerToken.sol';
 
 contract PredictionMarket {
   string public question;
   uint public expiration;
-  address responder;
-  address owner;
+  address public responder;
+  address public owner;
   uint tokensInitialSupply;
   AnswerToken public yes;
   AnswerToken public no;
