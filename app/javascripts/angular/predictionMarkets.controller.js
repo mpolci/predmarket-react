@@ -9,5 +9,4 @@ angular.module('predictionMarketApp').controller('predictionMarketsController', 
     $timeout(() => $scope.$apply())
   ).catch($log.error)
 
-
 })

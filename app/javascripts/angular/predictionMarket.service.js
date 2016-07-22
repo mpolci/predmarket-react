@@ -12,12 +12,14 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
   function retrieveMarkets() {
     return marketsIndex.getAvailableMarketsRawArray.call()
     .then(function (addrs) {
-      var markets = []
+      var markets = appState.markets.availMrktAddrs
+      markets.splice(0, markets.length)
+      // var markets = []
       for (var i=0; i < addrs.length; i++) {
         if (addrs[i] != 0)
           markets.push(addrs[i])
       }
-      appState.availMrktAddrs = markets
+      // appState.markets.availMrktAddrs = markets
     })
   }
 
