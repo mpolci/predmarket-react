@@ -20,13 +20,13 @@
   - parameterize the constants
   - send back the change if the transfered value is not multiple of the bid price
 */
+import 'Owned.sol';
 import 'AnswerToken.sol';
 
-contract PredictionMarket {
+contract PredictionMarket is Owned{
   string public question;
   uint public expiration;
   address public responder;
-  address public owner;
   uint tokensInitialSupply;
   AnswerToken public yes;
   AnswerToken public no;
@@ -42,7 +42,6 @@ contract PredictionMarket {
     question = _question;
     expiration = _expirationTime;
     responder = _responder;
-    owner = msg.sender;
     feeRate = _feeRate;
 
     tokensInitialSupply = msg.value / 500 szabo;

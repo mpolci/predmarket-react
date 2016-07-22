@@ -1,5 +1,5 @@
 import "AddressSet.sol";
-import "PredictionMarket.sol";
+import "Owned.sol";
 
 contract PredictionMarketsIndex {
   using AddressSet for AddressSet.data;
@@ -8,7 +8,7 @@ contract PredictionMarketsIndex {
   mapping (address => AddressSet.data) public watchedMarkets;
 
   modifier onlyMarketOwner(address market) {
-    if (msg.sender != PredictionMarket(market).owner()) throw;
+    if (msg.sender != Owned(market).owner()) throw;
     _
   }
 
@@ -36,7 +36,7 @@ contract PredictionMarketsIndex {
   function getAvailableMarketsRawArray() constant returns (address []) {
     return availableMarkets.items;
   }
-  
+
   function getWatchedRawArray() constant returns (address []) {
     return watchedMarkets[msg.sender].items;
   }
