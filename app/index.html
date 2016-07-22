@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html ng-app="predictionMarketApp">
+<head>
+  <title>Prediction Markets App</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.3.1/angular-ui-router.min.js"></script>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+  <link href="./app.css" rel='stylesheet' type='text/css'>
+  <script src="./app.js"></script>
+  <script src="./angularapp.js"></script>
+</head>
+<body>
+  <h1>PredictionMarket</h1>
+
+  <div class="action" ng-controller="controlAccountController as control">
+    <label for="account">Select a control account before interacting with the contract: </label>
+    <select id="account" ng-model="control.selected.address">
+      <option ng-repeat="a in control.accounts" value="{{a}}">{{ $index }}</option>
+    </select>
+    <div class="info">
+      <span>Address: {{ control.selected.address }}</span>
+      <span>balance: {{ control.selected.balance }}</span>
+    </div>
+    <label>Gas limit for transactions: </label>
+      <input type="text" ng-model="control.selected.gasLimit">
+    </label>
+  </div>
+
+  <div class="action" ng-controller="predictionMarketsController as mc">
+    <div ng-repeat="m in mc.markets.availMrktAddrs">
+      <a>m</a>
+    </div>
+  </div>
+
+  <div class="action" ng-controller="createMarketController as create">
+    <h2>Create a new prediction market</h2>
+    <label>Question:
+      <input type="text" ng-model="create.marketCreation.question">
+    </label>
+    <label>Expiration:
+      <input type="text" ng-model="create.marketCreation.expirationTime">
+      <!-- <p>Now + 1 week</p> -->
+    </label>
+    <label>Responder:
+      <input type="text" ng-model="create.marketCreation.responder">
+    </label>
+    <label>Fees rate (1/10000):
+      <input type="text" ng-model="create.marketCreation.feeRate">
+    </label>
+    <label>Initial prize:
+      <input type="text" ng-model="create.marketCreation.initialPrize">
+    </label>
+
+    <button ng-click="create.doCreate()">Create a new PredictionMarket</button>
+
+    <div class="action" ng-show="create.marketCreation.created">
+      <label>Created a new prediction market at address:
+        <span>{{ create.marketCreation.created }}</span>
+      </label>
+      <button ng-click="create.doPublish()">Publish</button>
+    </div>
+
+  </div>
+
+</body>
+</html>
