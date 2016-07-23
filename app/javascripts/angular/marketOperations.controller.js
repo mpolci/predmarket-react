@@ -52,16 +52,17 @@ angular.module('predictionMarketApp').controller('marketOperationsController', f
     setShows()
   }
 
-  $scope.$watch(() => mktOps.selectedMarket, () => { updateDetails(); refreshBets() } )
+  $scope.$watch(() => mktOps.selectedMarket, (newv, oldv) => { updateDetails(); refreshBets() } )
   $scope.$watch(() => mktOps.selectedMarket && appState.markets.marketsDetails[mktOps.selectedMarket], updateDetails)
 
   function refreshBets() {
-    return predictionMarketService.getBets(mktOps.selectedMarket, appState.selectedAccount.address)
-    .then(values => {
-      mktOps.yesBets = values[0]
-      mktOps.noBets = values[1]
-      setShowsWithdrawPrize()
-    })
+    return !mktOps.selectedMarket || !appState.selectedAccount.address ? null :
+      predictionMarketService.getBets(mktOps.selectedMarket, appState.selectedAccount.address)
+      .then(values => {
+        mktOps.yesBets = values[0]
+        mktOps.noBets = values[1]
+        setShowsWithdrawPrize()
+      })
   }
 
   function doBid(what, value) {

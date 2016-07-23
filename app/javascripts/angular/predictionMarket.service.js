@@ -61,45 +61,40 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
     })
   }
 
+  function fetchContractData(contract, fields) {
+    return () => $q.all(fields.map(f => contract[f].call()))
+    .then(values => {
+      data = {}
+      values.forEach((v,i) => {
+        data[fields[i]] = v
+      })
+      return data
+    })
+  }
+
   function loadMarketData(address) {
     var market = PredictionMarket.at(address)
     var marketData = {}
     return $q.all([
       !address && $q.reject('Missing market address'),
     ])
-    .then(function () {
-      return $q.all([
-        market.question.call(),
-        market.expiration.call(),
-        market.responder.call(),
-        market.owner.call(),
-        market.yes.call(),
-        market.no.call(),
-        market.payout.call(),
-        market.feeRate.call(),
-        market.getYesPrice.call(),
-        market.getNoPrice.call(),
-        market.prizePool.call(),
-        market.totalFees.call(),
-        market.getVerdict.call(),
-      ])
-    })
+    .then(fetchContractData(market, [
+      'question',
+      'expiration',
+      'responder',
+      'owner',
+      'yes',
+      'no',
+      'payout',
+      'feeRate',
+      'getYesPrice',
+      'getNoPrice',
+      'prizePool',
+      'totalFees',
+      'getVerdict',
+    ]))
     .then(function (data) {
-      angular.extend(marketData, {
-        question: data[0],
-        expiration: data[1],
-        responder: data[2],
-        owner: data[3],
-        yes: data[4],
-        no: data[5],
-        payout: data[6],
-        feeRate: data[7],
-        getYesPrice: data[8],
-        getNoPrice: data[9],
-        prizePool: data[10],
-        totalFees: data[11],
-        getVerdict: data[12],
-      })
+      angular.extend(marketData, data)
       return $q.all([
         AnswerToken.at(marketData.yes).totalSupply.call(),
         AnswerToken.at(marketData.no).totalSupply.call(),
@@ -155,10 +150,11 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
       market.yes.call(),
       market.no.call()
     ])
-    .then(tokens => $q.all([
+    .then(tokens => {
+      return $q.all([
       AnswerToken.at(tokens[0]).balanceOf.call(address),
       AnswerToken.at(tokens[1]).balanceOf.call(address),
-    ]))
+    ])})
   }
 
 
