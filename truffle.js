@@ -11,6 +11,7 @@ module.exports = {
       "javascripts/angular/controlAccount.controller.js",
       "javascripts/angular/predictionMarkets.controller.js",
       "javascripts/angular/createMarket.controller.js",
+      "javascripts/angular/marketOperations.controller.js",
     ],
     "app.css": [
       "stylesheets/app.css"

@@ -10,9 +10,9 @@ angular.module('predictionMarketApp').factory('appState', function () {
     // accounts: [],
     markets: {
       availMrktAddrs: [],
-      ownedMrktAddrs: [],
-      betMrktAddrs: [],
-      predictionMarkets: {
+      //ownedMrktAddrs: [],
+      //betMrktAddrs: [],
+      marketsDetails: {
         // '<address>': {
         //   yesCost,
         //   noCost,
@@ -31,5 +31,10 @@ angular.module('predictionMarketApp').factory('appState', function () {
     //   feeRate: null,
     //   initialPrize: null,
     // }
+    marketOperations: {
+      selectedMarket: null, // address
+      yesBets: null,
+      noBets: null,
+    }
   }
 })

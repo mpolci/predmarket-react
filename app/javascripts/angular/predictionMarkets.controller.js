@@ -1,7 +1,10 @@
 angular.module('predictionMarketApp').controller('predictionMarketsController', function ($scope, $log, $timeout, appState, predictionMarketService) {
   var self = this
   angular.extend(this, {
-    markets: appState.markets,
+    availMrktAddrs: appState.markets.availMrktAddrs,
+    marketsDetails: appState.markets.marketsDetails,
+
+    selectMarket: selectMarket
   })
 
   predictionMarketService.retrieveMarkets()
@@ -9,4 +12,7 @@ angular.module('predictionMarketApp').controller('predictionMarketsController', 
     $timeout(() => $scope.$apply())
   ).catch($log.error)
 
+  function selectMarket(addr) {
+    appState.marketOperations.selectedMarket = addr
+  }
 })

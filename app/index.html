@@ -13,6 +13,7 @@
   <h1>PredictionMarket</h1>
 
   <div class="action" ng-controller="controlAccountController as control">
+    <h2>Account</h2>
     <label for="account">Select a control account before interacting with the contract: </label>
     <select id="account" ng-model="control.selected.address">
       <option ng-repeat="a in control.accounts" value="{{a}}">{{ $index }}</option>
@@ -26,12 +27,6 @@
     </label>
   </div>
 
-  <div class="action" ng-controller="predictionMarketsController as mc">
-    <h2>Available predictions markets</h2>
-    <div ng-repeat="addr in mc.markets.availMrktAddrs">
-      <a>{{addr}}</a>
-    </div>
-  </div>
 
   <div class="action" ng-controller="createMarketController as create">
     <h2>Create a new prediction market</h2>
@@ -60,6 +55,53 @@
       </label>
       <button ng-click="create.doPublish()">Publish</button>
     </div>
+  </div>
+
+  <div class="action" ng-controller="predictionMarketsController as mc">
+    <h2>Available predictions markets</h2>
+    <div ng-repeat="addr in mc.availMrktAddrs">
+      <a href ng-click="mc.selectMarket(addr)">{{addr}} - {{mc.marketsDetails[addr].question}}</a>
+    </div>
+  </div>
+
+  <div class="action" ng-controller="marketOperationsController as opsc" ng-show="opsc.marketOperations.selectedMarket">
+    <h2>Prediction market details</h2>
+    <div>Address: {{ opsc.marketOperations.selectedMarket }}</div>
+    <div ng-repeat="(field, value) in opsc.details">{{field}}: {{ value }}</div>
+    <div>Your bets to yes: {{ opsc.marketOperations.yesBets }}</div>
+    <div>Your bets to no: {{ opsc.marketOperations.noBets }}</div>
+
+    <div class="action" ng-show="opsc.show.bid">
+      <h3>Make a bet</h3>
+      <label>Amount:
+        <input name="amount" type="number" ng-model="_amountInput" required>
+      </label>
+      <button ng-click="opsc.doBid('yes', _amountInput)">Bet on yes</button>
+      <button ng-click="opsc.doBid('no', _amountInput)">Bet on no</button>
+    </div>
+
+    <div class="action" ng-show="opsc.show.respond">
+      <h3>Give a verdict</h3>
+      <div>opsc.details.question<div>
+      <button ng-click="opsc.doGiveVerdict('yes')">yes</button>
+      <button ng-click="opsc.doGiveVerdict('yes')">no</button>
+    </div>
+
+    <div class="action" ng-show="opsc.show.withdrawFees">
+      <h3>You are the owner of this prediction market, withdraw the fees</h3>
+      <button ng-click="opsc.doWithdrawFees()">no</button>
+    </div>
+
+    <div class="action" ng-show="opsc.show.withdrawPrize">
+      <h3>Withdraw your prize</h3>
+      <button ng-click="opsc.doWithdrawPrize()">no</button>
+    </div>
+
+    <div class="action" ng-show="opsc.show.withdrawUnresponded">
+      <h3>This market din't receive a response, take back you money</h3>
+      <button ng-click="opsc.doWithdrawUnresponded()">no</button>
+    </div>
+
 
   </div>
 

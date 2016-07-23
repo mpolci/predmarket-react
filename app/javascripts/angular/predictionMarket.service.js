@@ -1,11 +1,25 @@
+'use strict'
+
 angular.module('predictionMarketApp').service('predictionMarketService', function ($q, $log, appState) {
   var self = this
+  const WEEK = 7 * 24 * 60 * 60
   angular.extend(this, {
     retrieveMarkets: retrieveMarkets,
     createMarket: createMarket,
     loadMarketData: loadMarketData,
     publishMarket: publishMarket,
+    bid: bid,
+    getBets: getBets,
+    is: {
+      yes: (verdict) => verdict == 1,
+      no: (verdict) => verdict == 2,
+      unresponded: (verdict) => verdict == 0,
+      expiredMarket: (expiration) => (Date.now()/1000) >= expiration.toNumber(),
+      expiredResponseTime: (expiration) => (Date.now()/1000) >= expiration.toNumber() + WEEK,
+      expiredWithdraw: (expiration) => (Date.now()/1000) >= expiration.toNumber() + 4 * WEEK,
+    },
   })
+
   var marketsIndex = PredictionMarketsIndex.deployed()
   $log.info('PredictionMarketsIndex address:', PredictionMarketsIndex.deployed_address)
 
@@ -20,6 +34,11 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
           markets.push(addrs[i])
       }
       // appState.markets.availMrktAddrs = markets
+    })
+    .then(function () {
+      return $q.all(appState.markets.availMrktAddrs.map(function (addr) {
+        return loadMarketData(addr)
+      }))
     })
   }
 
@@ -38,6 +57,7 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
     .then(function (contract) {
       $log.info('New PredictionMarket at address: ', contract.address)
       appState.marketCreation.created = contract.address
+      return contract
     })
   }
 
@@ -90,6 +110,8 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
         yesTotalBids: data[0],
         noTotalBids: data[1],
       })
+      var marketsDetails = appState.markets.marketsDetails
+      marketsDetails[address] = angular.extend(marketsDetails[address] || {}, marketData)
     })
   }
 
@@ -108,5 +130,36 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
     })
     .then(retrieveMarkets)
   }
+
+  function bid(marketAddress, what, value) {
+    return $q.all([
+      !appState.selectedAccount.address && $q.reject('Missing selected account for the operation'),
+      !marketAddress && $q.reject('Market address missing'),
+      what!=='yes' && what!=='no' && $q.reject('Only yes or no allowed bids'),
+      !value && $q.reject('Bid amount missing'),
+    ])
+    .then(function () {
+      market = PredictionMarket.at(marketAddress)
+      bidfn = what === 'yes' ? 'bidYes' : 'bidNo'
+      return market[bidfn]({from: appState.selectedAccount.address, value: value})
+    })
+    .then(function (txid) {
+      $log.info('bid', value, 'for', what, 'to', marketAddress, 'txid:', txid)
+      return loadMarketData(marketAddress)
+    })
+  }
+
+  function getBets(marketAddr, address) {
+    market = PredictionMarket.at(marketAddr)
+    return $q.all([
+      market.yes.call(),
+      market.no.call()
+    ])
+    .then(tokens => $q.all([
+      AnswerToken.at(tokens[0]).balanceOf.call(address),
+      AnswerToken.at(tokens[1]).balanceOf.call(address),
+    ]))
+  }
+
 
 })
