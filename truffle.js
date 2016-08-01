@@ -12,7 +12,7 @@ module.exports = {
       "javascripts/angular/predictionMarkets.controller.js",
       "javascripts/angular/createMarket.controller.js",
       "javascripts/angular/marketOperations.controller.js",
-      "javascripts/angular/directives.js",
+      "javascripts/angular/filters.js",
     ],
     "app.css": [
       "stylesheets/app.css"
