@@ -127,11 +127,14 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
   }
 
   function bid(marketAddress, what, value) {
+    let details = appState.markets.marketsDetails[marketAddress]
+    let price = what === 'yes' ? details.getYesPrice : details.getNoPrice
     return $q.all([
       !appState.selectedAccount.address && $q.reject('Missing selected account for the operation'),
       !marketAddress && $q.reject('Market address missing'),
       what!=='yes' && what!=='no' && $q.reject('Only yes or no allowed bids'),
       !value && $q.reject('Bid amount missing'),
+      price.greaterThan(value) && $q.reject('Too low amount'),
     ])
     .then(function () {
       market = PredictionMarket.at(marketAddress)

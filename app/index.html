@@ -77,16 +77,16 @@
       <div>{{field}}: {{ opsc.details[field] | unitEther | num }} eth</div>
     </div>
     <div ng-repeat="field in ['feeRate', 'getVerdict', 'yesTotalBids', 'noTotalBids']">
-      <div>{{field}}: {{ opsc.details[field] }}</div>
+      <div>{{field}}: {{ opsc.details[field] | num }}</div>
     </div>
     <!-- <div ng-repeat="(field, value) in opsc.details">{{field}}: {{ value }}</div> -->
-    <div>Your bets to yes: {{ opsc.marketOperations.yesBets }}</div>
-    <div>Your bets to no: {{ opsc.marketOperations.noBets }}</div>
+    <div>Your bets to yes: {{ opsc.marketOperations.yesBets | num }}</div>
+    <div>Your bets to no: {{ opsc.marketOperations.noBets | num }}</div>
 
     <div class="action" ng-show="opsc.show.bid">
       <h3>Make a bet</h3>
       <label>Amount (eth):
-        <input name="amount" type="number" ng-model="_amountInput" required unitEther>
+        <input name="amount" type="number" ng-model="_amountInput" required unit-ether>
       </label>
       <button ng-click="opsc.doBid('yes', _amountInput)">Bet on yes</button>
       <button ng-click="opsc.doBid('no', _amountInput)">Bet on no</button>

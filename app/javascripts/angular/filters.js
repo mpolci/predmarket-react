@@ -36,7 +36,7 @@
 
   app.filter('num', function() {
     return function(input) {
-      return parseFloat(input)
+      return input != null ? parseFloat(input) : null
     }
   })
 
