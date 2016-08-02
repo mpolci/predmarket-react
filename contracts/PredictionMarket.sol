@@ -19,6 +19,7 @@
   - payment of the responder
   - parameterize the constants
   - send back the change if the transfered value is not multiple of the bid price
+  - actually the owner can take own part of prize only at market destruction
 */
 import 'Owned.sol';
 import 'AnswerToken.sol';

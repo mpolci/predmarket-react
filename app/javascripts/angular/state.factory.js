@@ -3,8 +3,8 @@ angular.module('predictionMarketApp').factory('appState', function () {
     selectedAccount: {
       address: null,
       balance: '',
-      ownedMrktAddrs: [],
-      betMrktAddrs: [],
+      // ownedMrktAddrs: [],
+      // betMrktAddrs: [],
       gasLimit: 2000000
     },
     // accounts: [],

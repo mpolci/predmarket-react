@@ -11,6 +11,9 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
     bid: bid,
     getBets: getBets,
     giveVerdict: giveVerdict,
+    withdrawPrize,
+    withdrawFees,
+    withdraw,
     is: {
       yes: (verdict) => verdict == 1,
       no: (verdict) => verdict == 2,
@@ -176,5 +179,41 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
     })
   }
 
+  function withdrawFees(marketAddress) {
+    var selected = appState.selectedAccount.address
+    var owner = appState.markets.marketsDetails[marketAddress].owner
+    return $q.all([
+      !selected && $q.reject('Missing selected account for the operation'),
+      selected != owner && $q.reject('Only owner il allowed to withdraw fees'),
+      !marketAddress && $q.reject('Market address missing'),
+    ])
+    .then(function () {
+      var market = PredictionMarket.at(marketAddress)
+      return market.withdrawFees({from: selected})
+    })
+  }
 
+  function withdrawPrize(marketAddress) {
+    var selected = appState.selectedAccount.address
+    return $q.all([
+      !selected && $q.reject('Missing selected account for the operation'),
+      !marketAddress && $q.reject('Market address missing'),
+    ])
+    .then(function () {
+      var market = PredictionMarket.at(marketAddress)
+      return market.withdrawPrize({from: selected})
+    })
+  }
+
+  function withdraw(marketAddress) {
+    var selected = appState.selectedAccount.address
+    return $q.all([
+      !selected && $q.reject('Missing selected account for the operation'),
+      !marketAddress && $q.reject('Market address missing'),
+    ])
+    .then(function () {
+      var market = PredictionMarket.at(marketAddress)
+      return market.withdraw({from: selected})
+    })
+  }
 })

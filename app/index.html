@@ -97,24 +97,24 @@
 
     <div class="action" ng-show="opsc.show.respond">
       <h3>Give a verdict</h3>
-      <div>{{ opsc.details.question }}<div>
+      <div>{{ opsc.details.question }}</div>
       <button ng-click="opsc.doGiveVerdict('yes')">yes</button>
       <button ng-click="opsc.doGiveVerdict('yes')">no</button>
     </div>
 
     <div class="action" ng-show="opsc.show.withdrawFees">
-      <h3>You are the owner of this prediction market, withdraw the fees</h3>
-      <button ng-click="opsc.doWithdrawFees()">no</button>
+      <h3>You are the owner of this prediction market</h3>
+      <button ng-click="opsc.doWithdrawFees()">Withdraw fees</button>
     </div>
 
     <div class="action" ng-show="opsc.show.withdrawPrize">
       <h3>Withdraw your prize</h3>
-      <button ng-click="opsc.doWithdrawPrize()">no</button>
+      <button ng-click="opsc.doWithdrawPrize()">Withdraw prize</button>
     </div>
 
     <div class="action" ng-show="opsc.show.withdrawUnresponded">
       <h3>This market din't receive a response, take back you money</h3>
-      <button ng-click="opsc.doWithdrawUnresponded()">no</button>
+      <button ng-click="opsc.doWithdrawUnresponded()">withdraw</button>
     </div>
 
 

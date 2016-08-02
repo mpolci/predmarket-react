@@ -54,6 +54,7 @@ angular.module('predictionMarketApp').controller('marketOperationsController', f
   }
 
   $scope.$watch(() => mktOps.selectedMarket, (newv, oldv) => { updateDetails(); refreshBets() } )
+  $scope.$watch(() => appState.selectedAccount.address, (newv, oldv) => { refreshBets(); setShows(); } )
   $scope.$watch(() => mktOps.selectedMarket && appState.markets.marketsDetails[mktOps.selectedMarket], updateDetails)
 
   function refreshBets() {
@@ -77,7 +78,7 @@ angular.module('predictionMarketApp').controller('marketOperationsController', f
 
   function doRefresh() {
     return refreshBets()
-    .then(loadMarketData(mktOps.selectedMarket))
+    .then(() => predictionMarketService.loadMarketData(mktOps.selectedMarket))
     .then(() => {
       $timeout(() => $scope.$apply())
     })
@@ -93,15 +94,25 @@ angular.module('predictionMarketApp').controller('marketOperationsController', f
       .catch($log.error)
   }
 
-  function doWithdrawFees() {
+  function _withdraw(type) {
+    predictionMarketService[type](mktOps.selectedMarket)
+    .then(txid => {
+      $log.info(type, 'txid:', txid)
+      doRefresh()
+    })
+    .catch($log.error)
+  }
 
+  function doWithdrawFees() {
+    _withdraw('withdrawFees')
   }
 
   function doWithdrawPrize() {
-
+    _withdraw('withdrawPrize')
   }
 
   function doWithdrawUnresponded() {
-
+    _withdraw('withdraw')
   }
+
 })
