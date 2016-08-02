@@ -13,6 +13,7 @@ angular.module('predictionMarketApp').controller('controlAccountController', fun
   web3.eth.getAccounts(function (err, accounts) {
     if (err) return $log.error(err)
     self.accounts = accounts
+    self.selected.address = accounts[0]
     $scope.$apply()
   })
 

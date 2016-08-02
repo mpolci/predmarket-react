@@ -10,7 +10,7 @@ angular.module('predictionMarketApp').controller('createMarketController', funct
   $log.debug('createMarketController initialization')
   marketCreation.question = 'prova'
   marketCreation.expirationTime = Date.now() / 1000 + 60
-  marketCreation.responder = '0xf30c3ab7075925e5d11e066c3b91894ad769f4c6'
+  marketCreation.responder = web3.eth.coinbase
   marketCreation.feeRate = 100
   marketCreation.initialPrize = 1000000000000000000
 
