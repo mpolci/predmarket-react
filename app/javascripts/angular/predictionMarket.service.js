@@ -10,6 +10,7 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
     publishMarket: publishMarket,
     bid: bid,
     getBets: getBets,
+    giveVerdict: giveVerdict,
     is: {
       yes: (verdict) => verdict == 1,
       no: (verdict) => verdict == 2,
@@ -158,6 +159,21 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
       AnswerToken.at(tokens[0]).balanceOf.call(address),
       AnswerToken.at(tokens[1]).balanceOf.call(address),
     ])})
+  }
+
+  function giveVerdict(marketAddress, what) {
+    var selected = appState.selectedAccount.address
+    var responder = appState.markets.marketsDetails[marketAddress].responder
+    return $q.all([
+      !selected && $q.reject('Missing selected account for the operation'),
+      selected != responder && $q.reject('Only responder il allowed to give verdict'),
+      !marketAddress && $q.reject('Market address missing'),
+      what!=='yes' && what!=='no' && $q.reject('Only yes or no allowed verdict'),
+    ])
+    .then(function () {
+      var market = PredictionMarket.at(marketAddress)
+      return market.answer(what === 'yes', {from: selected})
+    })
   }
 
 

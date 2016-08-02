@@ -40,4 +40,23 @@
     }
   })
 
+  app.filter('verdict', function() {
+    return function(value) {
+      if (value && value.toNumber) value = value.toNumber()
+      switch(value) {
+        case 0:
+          return 'N/A'
+        case 1:
+          return 'yes'
+        case 2:
+          return 'no'
+        case null:
+        case undefined:
+          return null
+        default:
+          return 'unknown verdict code'
+      }
+    }
+  })
+
 })()

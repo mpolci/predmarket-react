@@ -7,6 +7,7 @@ angular.module('predictionMarketApp').controller('marketOperationsController', f
     details: null,
     doBid,
     doRefresh,
+    doGiveVerdict,
     doWithdrawFees,
     doWithdrawPrize,
     doWithdrawUnresponded,
@@ -81,6 +82,15 @@ angular.module('predictionMarketApp').controller('marketOperationsController', f
       $timeout(() => $scope.$apply())
     })
     .catch($log.error)
+  }
+
+  function doGiveVerdict(what) {
+      predictionMarketService.giveVerdict(mktOps.selectedMarket, what)
+      .then(txid => {
+        $log.info('Verdict given, txid:', txid)
+        doRefresh()
+      })
+      .catch($log.error)
   }
 
   function doWithdrawFees() {

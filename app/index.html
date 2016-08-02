@@ -76,9 +76,12 @@
     <div ng-repeat="field in ['payout', 'getYesPrice', 'getNoPrice', 'prizePool', 'totalFees']">
       <div>{{field}}: {{ opsc.details[field] | unitEther | num }} eth</div>
     </div>
-    <div ng-repeat="field in ['feeRate', 'getVerdict', 'yesTotalBids', 'noTotalBids']">
+    <div>Fees rate: {{ opsc.details.feeRate | marketFeeRate }} %</div>
+    <div ng-repeat="field in ['yesTotalBids', 'noTotalBids']">
       <div>{{field}}: {{ opsc.details[field] | num }}</div>
     </div>
+    <div>Verdict: {{ opsc.details.getVerdict | verdict }}</div>
+
     <!-- <div ng-repeat="(field, value) in opsc.details">{{field}}: {{ value }}</div> -->
     <div>Your bets to yes: {{ opsc.marketOperations.yesBets | num }}</div>
     <div>Your bets to no: {{ opsc.marketOperations.noBets | num }}</div>
@@ -94,7 +97,7 @@
 
     <div class="action" ng-show="opsc.show.respond">
       <h3>Give a verdict</h3>
-      <div>opsc.details.question<div>
+      <div>{{ opsc.details.question }}<div>
       <button ng-click="opsc.doGiveVerdict('yes')">yes</button>
       <button ng-click="opsc.doGiveVerdict('yes')">no</button>
     </div>
