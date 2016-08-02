@@ -27,98 +27,16 @@
     </label>
   </div>
 
-
-  <div class="action" ng-controller="createMarketController as create">
-    <h2>Create a new prediction market</h2>
-    <label>Question:
-      <input type="text" ng-model="create.marketCreation.question">
-    </label>
-    <label>Expiration:
-      <input type="datetime-local" ng-model="create.marketCreation.expirationTime" required ethereum-timestamp>
-      <!-- <p>Now + 1 week</p> -->
-    </label>
-    <label>Responder:
-      <input type="text" ng-model="create.marketCreation.responder" required>
-    </label>
-    <label>Fees rate (%):
-      <input type="text" ng-model="create.marketCreation.feeRate" required market-fee-rate>
-    </label>
-    <label>Initial prize (eth):
-      <input type="text" ng-model="create.marketCreation.initialPrize" required unit-ether>
-      <!-- <input type="number" name="myDecimal" placeholder="Decimal" ng-model="myDecimal" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" step="0.01" /> -->
-    </label>
-
-    <button ng-click="create.doCreate()">Create a new PredictionMarket</button>
-
-    <div class="action" ng-show="create.marketCreation.created">
-      <label>Created a new prediction market at address:
-        <span>{{ create.marketCreation.created }}</span>
-      </label>
-      <button ng-click="create.doPublish()">Publish</button>
-    </div>
-  </div>
-
   <div class="action" ng-controller="predictionMarketsController as mc">
+    <a href ui-sref="create">Create a new prediction market</a>
     <h2>Available predictions markets</h2>
     <div ng-repeat="addr in mc.availMrktAddrs">
       <a href ng-click="mc.selectMarket(addr)">{{addr}} - {{mc.marketsDetails[addr].question}}</a>
     </div>
   </div>
 
-  <div class="action" ng-controller="marketOperationsController as opsc" ng-show="opsc.marketOperations.selectedMarket">
-    <h2>Prediction market details</h2>
-    <div>Address: {{ opsc.marketOperations.selectedMarket }}</div>
-    <div>Question: {{ opsc.details.question }}</div>
-    <div>Expiration: {{ opsc.details.expiration | ethereumTimestamp | date:'medium' }}</div>
-    <div ng-repeat="field in ['responder', 'owner', 'yes', 'no']">
-      <div>{{field}}: {{ opsc.details[field] }}</div>
-    </div>
-    <div ng-repeat="field in ['payout', 'getYesPrice', 'getNoPrice', 'prizePool', 'totalFees']">
-      <div>{{field}}: {{ opsc.details[field] | unitEther | num }} eth</div>
-    </div>
-    <div>Fees rate: {{ opsc.details.feeRate | marketFeeRate }} %</div>
-    <div ng-repeat="field in ['yesTotalBids', 'noTotalBids']">
-      <div>{{field}}: {{ opsc.details[field] | num }}</div>
-    </div>
-    <div>Verdict: {{ opsc.details.getVerdict | verdict }}</div>
+  <section ui-view></section>
 
-    <!-- <div ng-repeat="(field, value) in opsc.details">{{field}}: {{ value }}</div> -->
-    <div>Your bets to yes: {{ opsc.marketOperations.yesBets | num }}</div>
-    <div>Your bets to no: {{ opsc.marketOperations.noBets | num }}</div>
-
-    <div class="action" ng-show="opsc.show.bid">
-      <h3>Make a bet</h3>
-      <label>Amount (eth):
-        <input name="amount" type="number" ng-model="_amountInput" required unit-ether>
-      </label>
-      <button ng-click="opsc.doBid('yes', _amountInput)">Bet on yes</button>
-      <button ng-click="opsc.doBid('no', _amountInput)">Bet on no</button>
-    </div>
-
-    <div class="action" ng-show="opsc.show.respond">
-      <h3>Give a verdict</h3>
-      <div>{{ opsc.details.question }}</div>
-      <button ng-click="opsc.doGiveVerdict('yes')">yes</button>
-      <button ng-click="opsc.doGiveVerdict('yes')">no</button>
-    </div>
-
-    <div class="action" ng-show="opsc.show.withdrawFees">
-      <h3>You are the owner of this prediction market</h3>
-      <button ng-click="opsc.doWithdrawFees()">Withdraw fees</button>
-    </div>
-
-    <div class="action" ng-show="opsc.show.withdrawPrize">
-      <h3>Withdraw your prize</h3>
-      <button ng-click="opsc.doWithdrawPrize()">Withdraw prize</button>
-    </div>
-
-    <div class="action" ng-show="opsc.show.withdrawUnresponded">
-      <h3>This market din't receive a response, take back you money</h3>
-      <button ng-click="opsc.doWithdrawUnresponded()">withdraw</button>
-    </div>
-
-
-  </div>
 
 </body>
 </html>

@@ -1,4 +1,4 @@
-angular.module('predictionMarketApp').controller('predictionMarketsController', function ($scope, $log, $timeout, appState, predictionMarketService) {
+angular.module('predictionMarketApp').controller('predictionMarketsController', function ($scope, $log, $timeout, $state, appState, predictionMarketService) {
   var self = this
   angular.extend(this, {
     availMrktAddrs: appState.markets.availMrktAddrs,
@@ -14,5 +14,6 @@ angular.module('predictionMarketApp').controller('predictionMarketsController', 
 
   function selectMarket(addr) {
     appState.marketOperations.selectedMarket = addr
+    $state.go('market')
   }
 })

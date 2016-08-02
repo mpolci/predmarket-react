@@ -1,12 +1,10 @@
 angular.module('predictionMarketApp')
 .config(function ($stateProvider) {
   $stateProvider
-  .state('start', {
-    url: "/",
-    templateUrl: 'start.html'
+  .state('create', {
+    templateUrl: 'views/create.html'
   })
-  .state('wallet', {
-    url: "/",
-    templateUrl: 'start.html'
+  .state('market', {
+    templateUrl: 'views/market.html'
   })
 })

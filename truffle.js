@@ -17,7 +17,7 @@ module.exports = {
     "app.css": [
       "stylesheets/app.css"
     ],
-    "images/": "images/"
+    "views/": "views/"
   },
   deploy: [
     "AddressSet",
