@@ -281,12 +281,12 @@ contract('PredictionMarket', accounts => {
         .then(() => pMarket.totalFees.call())
         .then(value => assert.equal(value.toNumber(), expectedFees))
       })
-      it('should return 0 after the fee withdrawal', () => {
+      it('should return X even after the fee withdrawal', () => {
         return web3.evm.setTimestamp(expiration + 1)
         .then(() => pMarket.answer(false, fromResponder))
         .then(() => pMarket.withdrawFees({from: accounts[0]}))
         .then(() => pMarket.totalFees.call())
-        .then(value => assert.equal(value.toNumber(), 0))
+        .then(value => assert.equal(value.toNumber(), expectedFees))
       })
     })
 

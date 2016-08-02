@@ -33,6 +33,7 @@ contract PredictionMarket is Owned{
   AnswerToken winner;
   uint public payout;
   uint public feeRate;  // value 100 means 1%
+  uint finalFees;
 
   // _feeRate is calculated as 1/10000 of total value, so a value of 100 means 1%
   function PredictionMarket(string _question, uint _expirationTime, address _responder, uint _feeRate) {
@@ -118,7 +119,10 @@ contract PredictionMarket is Owned{
   }
 
   function totalFees() constant returns (uint) {
-    return (this.balance / 10000) * feeRate;
+    if (address(winner) == 0)
+      return (this.balance / 10000) * feeRate;
+    else
+      return finalFees;
   }
 
   function answer(bool isYes)
@@ -127,8 +131,9 @@ contract PredictionMarket is Owned{
     onlyAfter(expiration)
     onlyBefore(expiration + 1 weeks)
   {
+    finalFees = totalFees();
     winner = isYes ? yes : no;
-    payout = (this.balance - totalFees()) / winner.totalSupply();
+    payout = (this.balance - finalFees) / winner.totalSupply();
   }
 
   function getVerdict() constant returns (uint8) {
@@ -167,6 +172,7 @@ contract PredictionMarket is Owned{
     onlyBy(owner)
     hasWinner
   {
+    if (feeRate == 0) throw;
     var amount = totalFees();
     feeRate = 0;
     if (amount == 0 || !owner.send(amount)) throw;
