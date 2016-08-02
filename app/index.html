@@ -20,7 +20,7 @@
     </select>
     <div class="info">
       <span>Address: {{ control.selected.address }}</span>
-      <span>balance: {{ control.selected.balance }}</span>
+      <span>balance: {{ control.selected.balance | unitEther }} eth</span>
     </div>
     <label>Gas limit for transactions: </label>
       <input type="text" ng-model="control.selected.gasLimit">

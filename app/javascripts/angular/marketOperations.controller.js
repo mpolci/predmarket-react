@@ -40,6 +40,7 @@ angular.module('predictionMarketApp').controller('marketOperationsController', f
       show.withdrawFees =
         appState.selectedAccount.address === details.owner
         && !is.unresponded(details.getVerdict)
+        && details.feeRate > 0
       show.withdrawUnresponded = is.unresponded(details.getVerdict) && is.expiredResponseTime(details.expiration),
       show.destroy =
         appState.selectedAccount.address === details.owner

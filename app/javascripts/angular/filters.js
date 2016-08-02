@@ -4,7 +4,7 @@
     {
       name: 'ethereumTimestamp',
       toView: (data) => new Date(data * 1000),
-      fromView: (data) => data.getTime() / 1000
+      fromView: (data) => Math.floor(data.getTime() / 1000)
     },
     {
       name: 'marketFeeRate',
@@ -13,7 +13,7 @@
     },
     {
       name: 'unitEther',
-      toView: (data) => web3.fromWei(data, 'ether'),
+      toView: (data) => web3.fromWei(web3.toBigNumber(data), 'ether').toNumber(),
       fromView: (data) => web3.toWei(data, 'ether')
     },
   ]
