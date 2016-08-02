@@ -33,7 +33,23 @@ web3.evm.setTimestamp = function (time) {
   return rpc('evm_setTimestamp', [time])
 }
 
+function getBalance(address) {
+  return new Promise((resolve, reject) => {
+    web3.eth.getBalance(address, (err, value) => {
+      if (err) return reject(err)
+      resolve(value)
+    })
+  })
+}
 
+function getGasUsed(txid) {
+  return new Promise((resolve, reject) => {
+    web3.eth.getTransactionReceipt(txid, (err, value) => {
+      if (err) return reject(err)
+      resolve(value.gasUsed)
+    })
+  })
+}
 
 contract('PredictionMarket', accounts => {
   let self = this
@@ -245,6 +261,35 @@ contract('PredictionMarket', accounts => {
       })
     }),
 
+    describe('totalFees', () => {
+      let expectedFees = 166666666666600
+      beforeEach(done => {
+        Promise.resolve()
+        .then(() => pMarket.bidYes({from: accounts[2], value: 5 * oneFinney}))   // 10 yes tokens -> 20 total supply
+        .then(() => pMarket.bidNo({from: accounts[3], value: 6666666666666660}))  // 20 no tokens -> 30 tatal supply
+        .then(() => done()).catch(done)
+      })
+
+      it('should return X', () => {
+        return pMarket.totalFees.call()
+        .then(value => assert.equal(value.toNumber(), expectedFees))
+      })
+      it('should return X even after a prize withdrawal', () => {
+        return web3.evm.setTimestamp(expiration + 1)
+        .then(() => pMarket.answer(false, fromResponder))
+        .then(() => pMarket.withdrawPrize({from: accounts[3]}))
+        .then(() => pMarket.totalFees.call())
+        .then(value => assert.equal(value.toNumber(), expectedFees))
+      })
+      it('should return 0 after the fee withdrawal', () => {
+        return web3.evm.setTimestamp(expiration + 1)
+        .then(() => pMarket.answer(false, fromResponder))
+        .then(() => pMarket.withdrawFees({from: accounts[0]}))
+        .then(() => pMarket.totalFees.call())
+        .then(value => assert.equal(value.toNumber(), 0))
+      })
+    })
+
     describe('withdrawals', () => {
       let balance = []
       let bids = []
@@ -263,12 +308,15 @@ contract('PredictionMarket', accounts => {
           collectBids(4),
         ])
         .then(() => pMarket.totalFees.call())
-        .then(fees => {
-          totalFees = fees
-          pmBalance = web3.eth.getBalance(pMarket.address)
-          for (let i = 0; i <= 4; i++)
-            balance[i] = web3.eth.getBalance(accounts[i])
-        })
+        .then(fees => totalFees = fees)
+        .then(() => getBalance(pMarket.address))
+        .then(value => pmBalance = value)
+        .then(() => Promise.all(
+          Array.from({length: 5}, (v, i) => {
+            return getBalance(accounts[i])
+            .then(value => balance[i] = value)
+          })
+        ))
       }
       beforeEach(done => {
         Promise.resolve()
@@ -301,9 +349,13 @@ contract('PredictionMarket', accounts => {
         it('should send X if winner', () => {
           return pMarket.answer(true, fromResponder)
           .then(() => pMarket.withdrawPrize({from: accounts[2]}))
-          .then(txid => {
-            let gas = web3.eth.getTransactionReceipt(txid).gasUsed
-            let transfered = web3.eth.getBalance(accounts[2]).minus(balance[2]).plus(gas).toNumber()
+          .then(txid => Promise.all([
+            getGasUsed(txid),
+            getBalance(accounts[2])
+          ]))
+          .then(values => {
+            let gas = values[0]
+            let transfered = values[1].minus(balance[2]).plus(gas).toNumber()
             let expected = pmBalance.minus(totalFees).div(20).mul(10).toNumber()
             assert.equal(transfered, expected)
           })
@@ -329,9 +381,12 @@ contract('PredictionMarket', accounts => {
         it('should send fees', () => {
           return pMarket.answer(true, fromResponder)
           .then(() => pMarket.withdrawFees(fromOwner))
-          .then(txid => {
-            let gas = web3.eth.getTransactionReceipt(txid).gasUsed
-            let transfered = web3.eth.getBalance(accounts[0]).minus(balance[0]).plus(gas).toNumber()
+          .then(txid => Promise.all([
+            getGasUsed(txid),
+            getBalance(accounts[0])
+          ]))
+          .then(values => {
+            let transfered = values[1].minus(balance[0]).plus(values[0]).toNumber()
             assert.equal(transfered, totalFees.toNumber())
           })
         })
@@ -339,6 +394,22 @@ contract('PredictionMarket', accounts => {
           return pMarket.answer(true, fromResponder)
           .then(() => pMarket.withdrawFees(fromOwner))
           .then(() => shouldFail(pMarket.withdrawFees(fromOwner)))
+        })
+        it('should send correct fees even after a prize withdrawal', () => {
+          let gas
+          return pMarket.answer(true, fromResponder)
+          .then(() => pMarket.withdrawPrize({from: accounts[2]}))
+          .then(() => pMarket.withdrawFees(fromOwner))
+          .then(txid => Promise.all([
+            getGasUsed(txid),
+            getBalance(accounts[0])
+          ]))
+          .then(values => {
+            let gas = values[0]
+            let newBalance = values[1]
+            let transfered = newBalance.minus(balance[0]).plus(gas).toNumber()
+            assert.equal(transfered, totalFees.toNumber())
+          })
         })
         it.skip('should fail if send fails', () => {
           // TODO
@@ -385,19 +456,28 @@ contract('PredictionMarket', accounts => {
         it('should send 10 times the payout', () => {
           return web3.evm.setTimestamp(expiration + week + 1)
           .then(() => pMarket.withdraw(from2))
-          .then(txid => {
-            let gas = web3.eth.getTransactionReceipt(txid).gasUsed
-            let transfered = web3.eth.getBalance(accounts[2]).minus(balance[2]).plus(gas).toNumber()
+          .then(txid => Promise.all([
+            getGasUsed(txid),
+            getBalance(accounts[2])
+          ]))
+          .then(values => {
+            let gas = values[0]
+            let transfered = values[1].minus(balance[2]).plus(gas).toNumber()
             let expected = expectedPayout.mul(10).toNumber()
             assert.equal(transfered, expected)
           })
         })
         it('should send payout for both yes and no tokens', () => {
+          let gas
           return web3.evm.setTimestamp(expiration + week + 1)
           .then(() => pMarket.withdraw({from: accounts[4]}))
-          .then(txid => {
-            let gas = web3.eth.getTransactionReceipt(txid).gasUsed
-            let transfered = web3.eth.getBalance(accounts[4]).minus(balance[4]).plus(gas).toNumber()
+          .then(txid => Promise.all([
+            getGasUsed(txid),
+            getBalance(accounts[4])
+          ]))
+          .then(values => {
+            let gas = values[0]
+            let transfered = values[1].minus(balance[4]).plus(gas).toNumber()
             let expected = expectedPayout.mul(20).toNumber()
             assert.equal(transfered, expected)
           })
