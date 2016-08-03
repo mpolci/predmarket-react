@@ -1,5 +1,9 @@
 angular.module('predictionMarketApp').factory('appState', function () {
   return {
+    accounts: {
+      localAccounts: false,
+      list: []
+    },
     selectedAccount: {
       address: null,
       balance: '',
@@ -7,7 +11,6 @@ angular.module('predictionMarketApp').factory('appState', function () {
       // betMrktAddrs: [],
       gasLimit: 2000000
     },
-    // accounts: [],
     markets: {
       availMrktAddrs: [],
       //ownedMrktAddrs: [],
@@ -21,7 +24,6 @@ angular.module('predictionMarketApp').factory('appState', function () {
         // }
       },
     },
-    currrentUIState: '',
     marketCreation: {},
     // {
     //   created: <address>
