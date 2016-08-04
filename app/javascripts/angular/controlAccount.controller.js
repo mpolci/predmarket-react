@@ -1,6 +1,7 @@
-angular.module('predictionMarketApp').controller('controlAccountController', function ($scope, $log, appState, accountsService) {
+angular.module('predictionMarketApp').controller('controlAccountController', function ($scope, $log, appState, accountsService, mistService) {
   var self = this
   angular.extend(this, {
+    showLocalAccounts: !mistService.available,
     accounts: appState.accounts,
     selected: appState.selectedAccount,
   })

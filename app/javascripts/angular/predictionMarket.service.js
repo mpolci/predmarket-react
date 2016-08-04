@@ -1,6 +1,6 @@
 'use strict'
 
-angular.module('predictionMarketApp').service('predictionMarketService', function ($q, $log, appState) {
+angular.module('predictionMarketApp').service('predictionMarketService', function ($rootScope, $q, $log, appState) {
   var self = this
   const WEEK = 7 * 24 * 60 * 60
   angular.extend(this, {
@@ -43,6 +43,9 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
       return $q.all(appState.markets.availMrktAddrs.map(function (addr) {
         return loadMarketData(addr)
       }))
+    })
+    .then(() => {
+      $rootScope.$emit('market-list-updated')
     })
   }
 

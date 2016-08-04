@@ -15,6 +15,7 @@ module.exports = {
       "javascripts/angular/createMarket.controller.js",
       "javascripts/angular/marketOperations.controller.js",
       "javascripts/angular/accounts.service.js",
+      "javascripts/angular/mist.js",
       "javascripts/angular/filters.js",
     ],
     "app.css": [

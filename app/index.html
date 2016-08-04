@@ -2,7 +2,7 @@
 <html ng-app="predictionMarketApp">
 <head>
   <title>Prediction Markets App</title>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.3.1/angular-ui-router.min.js"></script>
   <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
   <link href="./app.css" rel='stylesheet' type='text/css'>
@@ -14,9 +14,10 @@
 
   <div class="action" ng-controller="controlAccountController as control">
     <h2>Account</h2>
-    <label>Use local accounts:
-      <input type="checkbox" ng-model="control.accounts.localAccounts"><br>
-    </label>
+    <div ng-if="control.showLocalAccounts">
+      <label for="local">Use local accounts:</label>
+      <input id="local" type="checkbox" ng-model="control.accounts.localAccounts"><br>
+    </div>
     <label for="account">Select a control account before interacting with the contract: </label>
     <select id="account" ng-model="control.selected.address">
       <option ng-repeat="a in control.accounts.list" value="{{a}}">{{ $index }}</option>
@@ -40,6 +41,6 @@
 
   <section ui-view></section>
 
-
+  <div ng-controller="mistController"></div>
 </body>
 </html>
