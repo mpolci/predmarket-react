@@ -2,6 +2,7 @@ import "AddressSet.sol";
 import "Owned.sol";
 
 contract PredictionMarketsIndex {
+  bool public present = true;
   using AddressSet for AddressSet.data;
 
   AddressSet.data public availableMarkets;
@@ -12,8 +13,8 @@ contract PredictionMarketsIndex {
     _
   }
 
-  function addMarket(address addr) returns (bool alreadyPresent)  {
-    return availableMarkets.insert(addr);
+  function addMarket(address addr) returns (bool added)  {
+    return availableMarkets.insert(addr) == 2;
   }
 
   function removeMarket(address market)

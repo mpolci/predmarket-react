@@ -1,5 +1,5 @@
 // inspired by IntegerSet at https://github.com/ethereum/wiki/wiki/Solidity-Features#internal-types-for-libraries
-// but unlike it AddressSet don't waste the first element of the items array 
+// but unlike it AddressSet don't waste the first element of the items array
 library AddressSet {
   struct data {
     /// Mapping item => index+1 (0 if not present)
@@ -10,17 +10,17 @@ library AddressSet {
     uint size;
   }
 
-  function insert(data storage self, address value) returns (bool alreadyPresent) {
+  function insert(data storage self, address value) returns (uint8 result) {
     uint sindex = self.sindex[value];
     if (sindex > 0)
-      return true;
+      return 1;
     else
     {
       self.items.push(value);
       sindex = self.items.length;
       self.sindex[value] = sindex;
       self.size++;
-      return false;
+      return 2;
     }
   }
 

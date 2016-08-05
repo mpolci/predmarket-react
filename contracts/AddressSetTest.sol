@@ -3,12 +3,8 @@ import "AddressSet.sol";
 contract AddressSetTest {
   using AddressSet for AddressSet.data;
   AddressSet.data data;
-/*
-  function AddressSetTest() {
-    data.size = 0;
-  }*/
 
-  function insert(address value) returns (bool alreadyPresent) {
+  function insert(address value) returns (uint8 result) {
     return data.insert(value);
   }
 
