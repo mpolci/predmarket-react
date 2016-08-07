@@ -1,1 +1,1 @@
-angular.module('predictionMarketApp', ['ui.router'])
+angular.module('predictionMarketApp', ['ui.router', 'ngRedux'])

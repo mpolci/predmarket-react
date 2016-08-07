@@ -19,7 +19,9 @@
       <input id="local" type="checkbox" ng-model="control.accounts.localAccounts"><br>
     </div>
     <label for="account">Select a control account before interacting with the contract: </label>
-    <select id="account" ng-model="control.selected.address">
+    <select id="account"
+      ng-model="control.selected.address"
+      ng-change="control.changeSelectedAccount(control.selected.address)">
       <option ng-repeat="a in control.accounts.list" value="{{a}}">{{ $index }}</option>
     </select>
     <div class="info">
