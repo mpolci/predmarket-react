@@ -124,50 +124,44 @@ angular.module('predictionMarketApp')
     yield effects.put({type: 'SET_MARKETS', list, details})
   }
 
-  function fetchMarketsList() {
-    return marketsIndex.getAvailableMarketsRawArray.call()
-    .then(function (addrs) {
-      var markets = []
-      for (var i=0; i < addrs.length; i++) {
-        if (addrs[i] != 0)
-          markets.push(addrs[i])
-      }
-      return markets
-    })
+  function* fetchMarketsList() {
+    let addrs = yield marketsIndex.getAvailableMarketsRawArray.call()
+    var markets = []
+    for (var i=0; i < addrs.length; i++) {
+      if (addrs[i] != 0)
+        markets.push(addrs[i])
+    }
+    // yield markets
+    return markets
   }
 
-  function fetchMarketsDetails(adressList) {
-    return $q.all(adressList.map(function (addr) {
-      return loadMarketData(addr)
-    }))
-    .then(list => list.reduce((map,  obj) => {
-      map[obj.address] = obj
+  function arrayToMap(a, f) {
+    return a.reduce((map,  obj) => {
+      map[obj[f]] = obj
       return map
-    }, {}))
-    .then(data => {
-      $rootScope.$emit('market-list-updated')
-      return data
-    })
+    }, {})
   }
 
-  function fetchContractData(contract, fields) {
-    return () => $q.all(fields.map(f => contract[f].call()))
-    .then(values => {
-      data = {}
-      values.forEach((v,i) => {
-        data[fields[i]] = v
-      })
-      return data
-    })
+  function* fetchMarketsDetails(adressList) {
+    let list = yield adressList.map(addr => loadMarketData(addr))
+    let map = arrayToMap(list, 'address')
+    $rootScope.$emit('market-list-updated')  //TODO: remove
+    return map
   }
 
-  function loadMarketData(address) {
-    var market = PredictionMarket.at(address)
+  function* fetchContractData(contract, fields) {
+    let values = yield fields.map(f => effects.call([contract[f], contract[f].call]))
+    data = {}
+    values.forEach((v,i) => {
+      data[fields[i]] = v
+    })
+    return data
+  }
+
+  function* loadMarketData(address) {
+    if (!address) throw new Error('Missing market address')
     var marketData = { address }
-    return $q.all([
-      !address && $q.reject('Missing market address'),
-    ])
-    .then(fetchContractData(market, [
+    let data = yield fetchContractData(PredictionMarket.at(address), [
       'question',
       'expiration',
       'responder',
@@ -181,21 +175,17 @@ angular.module('predictionMarketApp')
       'prizePool',
       'totalFees',
       'getVerdict',
-    ]))
-    .then(function (data) {
-      angular.extend(marketData, data)
-      return $q.all([
-        AnswerToken.at(marketData.yes).totalSupply.call(),
-        AnswerToken.at(marketData.no).totalSupply.call(),
-      ])
+    ])
+    Object.assign(marketData, data)
+    let supply = yield [
+      effects.call(AnswerToken.at(marketData.yes).totalSupply.call),
+      effects.call(AnswerToken.at(marketData.no).totalSupply.call),
+    ]
+    Object.assign(marketData, {
+      yesTotalBids: supply[0],
+      noTotalBids: supply[1],
     })
-    .then(function (data) {
-      angular.extend(marketData, {
-        yesTotalBids: data[0],
-        noTotalBids: data[1],
-      })
-      return marketData
-    })
+    return marketData
   }
 
 
