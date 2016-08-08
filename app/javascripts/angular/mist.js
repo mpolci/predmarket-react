@@ -5,11 +5,12 @@ angular.module('predictionMarketApp').config(function () {
   }
 })
 
-angular.module('predictionMarketApp').service('mistService', function () {
+angular.module('predictionMarketApp').service('mistService', function ($state, $log, appState, ethereumTimestampFilter) {
   var self = this
   angular.extend(this, {
     available: typeof(mist) !== "undefined",
-    addMenuItem: addMenuItem
+    addMenuItem: addMenuItem,
+    addMarketToMenu: addMarketToMenu
   })
 
   var counter = 0
@@ -26,22 +27,26 @@ angular.module('predictionMarketApp').service('mistService', function () {
     }, callback)
   }
 
+  function addMarketToMenu(addr) {
+    if (!self.available) return;
+    details = appState.markets.marketsDetails[addr]
+    addMenuItem(details.question, ethereumTimestampFilter(details.expiration), () => {
+      appState.marketOperations.selectedMarket = addr
+      $state.go('market')
+    })
+    $log.debug('Added Mist menu item for market:', addr)
+  }
 })
 
-angular.module('predictionMarketApp').controller('mistController', function ($rootScope, $log, mistService, appState, ethereumTimestampFilter) {
+angular.module('predictionMarketApp').controller('mistController', function ($rootScope, mistService, appState) {
   if (!mistService.available) return;
 
   var added = {}
   $rootScope.$on('market-list-updated', function () {
     appState.markets.availMrktAddrs.forEach(addr => {
       if (!added[addr]) {
-        details = appState.markets.marketsDetails[addr]
-        mistService.addMenuItem(details.question, ethereumTimestampFilter(details.expiration), () => {
-          appState.marketOperations.selectedMarket = addr
-          $state.go('market')
-        })
+        mistService.addMarketToMenu(addr)
         added[addr] = true
-        $log.$debug('Added Mist menu item for market:', addr)
       }
     })
   })

@@ -8,6 +8,7 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
     createMarket: createMarket,
     loadMarketData: loadMarketData,
     publishMarket: publishMarket,
+    getTransactionReceiptMined,
     bid: bid,
     getBets: getBets,
     giveVerdict: giveVerdict,
@@ -117,6 +118,21 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
     })
   }
 
+
+  function getTransactionReceiptMined (txnHash, interval, maxwait) {
+    interval |=  5000  // 5 seconds
+    maxwait |= 300000  // 5 minutes
+    return new Promise(function (resolve, reject) {
+      var counter = parseInt(maxwait / interval)
+      ;(function checkMined() {
+        var receipt = web3.eth.getTransactionReceipt(txnHash);
+        if (receipt) resolve(receipt)
+        else if (counter--) setTimeout(checkMined, interval)
+        else reject(new Error('Transaction not mined within ' + maxwait + 'minutes: ' + txid))
+      })()
+    })
+  }
+
   // Temporary function. An alternative idea is that PredictionMarket contract register itself in the index at the creation.
   function publishMarket() {
     return $q.all([
@@ -124,13 +140,21 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
       !appState.marketCreation.created && $q.reject('No unpublished market'),
     ])
     .then(function () {
+      return marketsIndex.addMarket.call(appState.marketCreation.created, {from: appState.selectedAccount.address})
+    })
+    .then(function (result) {
+      $log.debug('addMarket simulation result:', result)
+    })
+    .then(function () {
       return marketsIndex.addMarket(appState.marketCreation.created, {from: appState.selectedAccount.address})
     })
     .then(function (txid) {
       $log.info('MarketsIndex.addMarket() txid:', txid)
       appState.marketCreation.created = null
+      return txid
     })
-    .then(retrieveMarkets)
+    .then(txid => getTransactionReceiptMined(txid))
+    .then(() => retrieveMarkets())
   }
 
   function bid(marketAddress, what, value) {

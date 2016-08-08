@@ -1,4 +1,4 @@
-angular.module('predictionMarketApp').controller('createMarketController', function ($scope, $timeout, $log, appState, predictionMarketService) {
+angular.module('predictionMarketApp').controller('createMarketController', function ($scope, $timeout, $log, appState, predictionMarketService, mistService) {
   var self = this
   angular.extend(this, {
     marketCreation: appState.marketCreation,
@@ -22,10 +22,15 @@ angular.module('predictionMarketApp').controller('createMarketController', funct
   }
 
   function doPublish() {
+    var mktAddr = self.marketCreation.created
     predictionMarketService.publishMarket()
-    .then(() =>
+    .then(() => {
+      mistService.addMarketToMenu(mktAddr)
       $timeout(() => $scope.$apply())
-    ).catch($log.error)
+    }).catch(err => {
+      $log.error(err)
+      self.marketCreation.created = mktAddr
+    })
   }
 
 })
