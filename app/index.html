@@ -16,13 +16,13 @@
     <h2>Account</h2>
     <div ng-if="control.showLocalAccounts">
       <label for="local">Use local accounts:</label>
-      <input id="local" type="checkbox" ng-model="control.accounts.localAccounts"><br>
+      <input id="local" type="checkbox" ng-model="control.localAccounts"><br>
     </div>
     <label for="account">Select a control account before interacting with the contract: </label>
     <select id="account"
-      ng-model="control.selected.address"
-      ng-change="control.changeSelectedAccount(control.selected.address)">
-      <option ng-repeat="a in control.accounts.list" value="{{a}}">{{ $index }}</option>
+      ng-model="control.selectedAddress"
+      ng-change="control.changeSelectedAccount(control.selectedAddress)">
+      <option ng-repeat="a in control.accountsList" value="{{a}}">{{ $index }}</option>
     </select>
     <div class="info">
       <span>Address: {{ control.selected.address }}</span>

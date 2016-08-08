@@ -5,13 +5,15 @@ angular.module('predictionMarketApp').controller('controlAccountController', fun
   })
 
   let unsubscribe = $ngRedux.connect(state => ({
-    accounts: state.accounts,
+    localAccounts: state.accounts.localAccounts,
+    accountsList: state.accounts.list,
+    selectedAddress: state.selectedAccount.address,
     selected: state.selectedAccount,
    }), accountsActions)(this);
   $scope.$on('$destroy', unsubscribe);
 
 
-  $scope.$watch(() => self.accounts.localAccounts, (newValue, oldValue) => {
+  $scope.$watch(() => self.localAccounts, (newValue, oldValue) => {
     if (newValue) {
       // Example of seed 'unhappy nerve cancel reject october fix vital pulse cash behind curious bicycle'
       var seed = prompt('Enter your private key seed', 'unhappy nerve cancel reject october fix vital pulse cash behind curious bicycle')
