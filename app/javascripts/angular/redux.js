@@ -9,10 +9,11 @@ angular.module('predictionMarketApp')
   }]
 })
 .config(($ngReduxProvider, sagaProvider) => {
+  let enhancers = window.devToolsExtension ? [window.devToolsExtension()] : []
   $ngReduxProvider.createStoreWith({
       accounts: 'accountsReducer',
       selectedAccount: 'selectedAccountReducer',
-   }, [sagaProvider.middleware])
+   }, [sagaProvider.middleware], enhancers)
 })
 .run((saga) => saga())
 .factory('sagaRoot', function (sagaAccounts) {
