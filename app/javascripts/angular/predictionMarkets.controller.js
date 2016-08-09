@@ -1,9 +1,6 @@
-angular.module('predictionMarketApp').controller('predictionMarketsController', function ($scope, $log, $timeout, $state, $ngRedux, marketsListActions, marketOperationsActions, appState, predictionMarketService) {
+angular.module('predictionMarketApp').controller('predictionMarketsController', function ($scope, $log, $timeout, $state, $ngRedux, marketsListActions, marketOperationsActions, predictionMarketService) {
   var self = this
   angular.extend(this, {
-    // availMrktAddrs: appState.markets.availMrktAddrs,
-    // marketsDetails: appState.markets.marketsDetails,
-
     selectMarket: selectMarket
   })
 
@@ -13,10 +10,6 @@ angular.module('predictionMarketApp').controller('predictionMarketsController', 
   }), marketsListActions)(this);
   $scope.$on('$destroy', unsubscribe);
 
-  // predictionMarketService.retrieveMarkets()
-  // .then(() =>
-  //   $timeout(() => $scope.$apply())
-  // ).catch($log.error)
   self.reqRefreshMarkets()
 
   function selectMarket(addr) {

@@ -1,8 +1,6 @@
-angular.module('predictionMarketApp').controller('createMarketController', function ($scope, $timeout, $log, $ngRedux, marketCreationActions, appState, predictionMarketService, mistService) {
+angular.module('predictionMarketApp').controller('createMarketController', function ($scope, $timeout, $log, $ngRedux, marketCreationActions, predictionMarketService, mistService) {
   var self = this
   angular.extend(this, {
-    // marketCreation: appState.marketCreation,
-
     doCreate: doCreate,
     doPublish: doPublish,
   })
@@ -22,23 +20,10 @@ angular.module('predictionMarketApp').controller('createMarketController', funct
 
   function doCreate() {
     self.reqNewMarket(self.marketCreation)
-  //   predictionMarketService.createMarket(marketCreation.question, marketCreation.expirationTime, marketCreation.responder, marketCreation.feeRate, marketCreation.initialPrize)
-  //   .then(() =>
-  //     $timeout(() => $scope.$apply())
-  //   ).catch($log.error)
   }
 
   function doPublish() {
     self.reqPublish(self.marketCreation.created)
-    // var mktAddr = self.marketCreation.created
-    // predictionMarketService.publishMarket()
-    // .then(() => {
-    //   mistService.addMarketToMenu(mktAddr)
-    //   $timeout(() => $scope.$apply())
-    // }).catch(err => {
-    //   $log.error(err)
-    //   self.marketCreation.created = mktAddr
-    // })
   }
 
 })

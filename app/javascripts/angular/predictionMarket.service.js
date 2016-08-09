@@ -1,6 +1,6 @@
 'use strict'
 
-angular.module('predictionMarketApp').service('predictionMarketService', function ($rootScope, $q, $log, appState) {
+angular.module('predictionMarketApp').service('predictionMarketService', function ($rootScope, $q, $log) {
   var self = this
   const WEEK = 7 * 24 * 60 * 60
   angular.extend(this, {
