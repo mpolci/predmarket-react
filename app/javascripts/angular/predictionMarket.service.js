@@ -5,6 +5,7 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
   const WEEK = 7 * 24 * 60 * 60
   angular.extend(this, {
     transactionReceiptMined,
+    deployContract,
     is: {
       yes: (verdict) => verdict == 1,
       no: (verdict) => verdict == 2,
@@ -29,6 +30,34 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
     }
     if (receipt) return receipt
     throw new Error('Transaction not mined within ' + maxwait + 'minutes: ' + txid)
+  }
+
+  function deployContract(truffleContract, ...args) {
+    args[args.length-1] = Object.assign({}, args[args.length-1], {
+      data: truffleContract.binary
+    })
+    let res
+    let rej
+    function callback(err, myContract){
+      if(err) rej(err)
+      if(!myContract.address) {
+        res({
+          txid: myContract.transactionHash,
+          getContractAddress: new Promise(function(resolve, reject) {
+            res = resolve
+            rej = reject
+          })
+        })
+      } else {
+        res(myContract.address)
+      }
+    }
+    return new Promise(function(resolve, reject) {
+      res = resolve
+      rej = reject
+      let Contract = web3.eth.contract(truffleContract.abi)
+      Contract.new(...args, callback)
+    })
   }
 
 })

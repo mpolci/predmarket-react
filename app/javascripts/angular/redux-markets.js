@@ -89,12 +89,18 @@ angular.module('predictionMarketApp')
       if(!args.responder) throw new Error('Missing responder address')
       if(!args.initialPrize) throw new Error('Missing initial prize')
 
-      let contract = yield effects.call([PredictionMarket, PredictionMarket.new],
+      let {txid, getContractAddress} = yield effects.call(predictionMarketService.deployContract,
+        PredictionMarket,
         args.question, args.expirationTime, args.responder, args.feeRate,
         {from: from.address, value: args.initialPrize, gas: from.gasLimit})
-
-      $log.info('New PredictionMarket at address: ', contract.address)
-      yield effects.put({type: 'SET_MARKET_CREATED', address: contract.address})
+      let transaction = yield effects.cps(web3.eth.getTransaction, txid)
+      yield effects.put({type: 'SET_BROADCASTED_TXID', txid, transaction})
+      let address = yield getContractAddress
+      $log.info('New PredictionMarket at address:', address)
+      yield [
+        effects.put({type: 'SET_MINED_TXID', txid}),
+        effects.put({type: 'SET_MARKET_CREATED', address}),
+      ]
     } catch (error) {
       $log.error(error)
       yield effects.put({type: 'ERR_NEW_MARKET', error})
