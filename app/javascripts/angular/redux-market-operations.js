@@ -114,14 +114,20 @@ angular.module('predictionMarketApp')
   function* callMarket(marketAddress, method, ...args) {
     var market = PredictionMarket.at(marketAddress)
     let txid = yield effects.call([market, market[method]], ...args)
-    yield effects.put({type: 'NEW_TX_MARKET_CALL', txid, marketAddress})
+    let transaction = yield effects.cps(web3.eth.getTransaction, txid)
+    yield [
+      effects.put({type: 'SET_BROADCASTED_TXID', txid, transaction}),
+      effects.put({type: 'NEW_TX_MARKET_CALL', txid, marketAddress})
+    ]
   }
 
   function* newTxMarketCall({txid, marketAddress}) {
     try {
-      yield effects.call(predictionMarketService.transactionReceiptMined, txid)
-      $log.info('Transaction ' + txid + ' mined')
-      yield effects.put(marketsListActions.reqRefreshMarket(marketAddress))
+      let receipt = yield effects.call(predictionMarketService.transactionReceiptMined, txid)
+      yield [
+        effects.put({type: 'SET_MINED_TXID', txid, receipt}),
+        effects.put(marketsListActions.reqRefreshMarket(marketAddress))
+      ]
     } catch (error) {
       $log.error(error)
       yield effects.put({type: 'ERR_TX_MARKET_CALL', error})
