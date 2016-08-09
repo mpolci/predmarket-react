@@ -119,7 +119,9 @@ angular.module('predictionMarketApp')
       yield [effects.put({type: 'SET_MARKET_CREATED', address: null}),
              effects.put({type: 'SET_BROADCASTED_TXID', txid, transaction})]
       let receipt = yield effects.call(predictionMarketService.transactionReceiptMined, txid)
-      yield effects.put({type: 'SET_MINED_TXID', txid, receipt}),
+      yield effects.put({type: 'SET_MINED_TXID', txid, receipt})
+      if (receipt.gasUsed === transaction.gas)
+        yield effects.put({type: 'ERR_PUBLISH', error: 'Out of gas'})
       yield* retrieveMarkets()
 
     } catch (error) {
