@@ -12,13 +12,11 @@ module.exports = {
     ],
     "angularapp.js": [
       "javascripts/angular/routes.js",
-      "javascripts/angular/state.factory.js",
       "javascripts/angular/predictionMarket.service.js",
       "javascripts/angular/controlAccount.controller.js",
       "javascripts/angular/predictionMarkets.controller.js",
       "javascripts/angular/createMarket.controller.js",
       "javascripts/angular/marketOperations.controller.js",
-      // "javascripts/angular/accounts.service.js",
       "javascripts/angular/mist.js",
       "javascripts/angular/filters.js",
       "javascripts/angular/redux.js",
