@@ -15,15 +15,17 @@ angular.module('predictionMarketApp')
     accounts: 'accountsReducer',
     selectedAccount: 'selectedAccountReducer',
     markets: 'marketsReducer',
-    marketCreation: 'marketCreationReducer'
+    marketCreation: 'marketCreationReducer',
+    marketOperations: 'marketOperationsReducer'
   }, [sagaProvider.middleware], enhancers)
 })
 .run((saga) => saga())
-.factory('sagaRoot', function (sagaAccounts, sagaMarkets) {
+.factory('sagaRoot', function (sagaAccounts, sagaMarkets, sagaMarketOperations) {
   return function* sagaRoot() {
     yield [
       ...sagaAccounts(),
       ...sagaMarkets(),
+      ...sagaMarketOperations(),
     ]
   }
 

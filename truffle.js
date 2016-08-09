@@ -24,6 +24,7 @@ module.exports = {
       "javascripts/angular/redux.js",
       "javascripts/angular/redux-accounts.js",
       "javascripts/angular/redux-markets.js",
+      "javascripts/angular/redux-market-operations.js",
     ],
     "app.css": [
       "stylesheets/app.css"

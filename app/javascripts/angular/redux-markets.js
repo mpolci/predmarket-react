@@ -7,6 +7,7 @@ angular.module('predictionMarketApp')
 }))
 .factory('marketsListActions', () => ({
   reqRefreshMarkets: () => ({ type: 'REQ_REFRESH_MARKETS' }),
+  reqRefreshMarket: (marketAddress) => ({ type: 'REQ_REFRESH_MARKET', marketAddress}),
 }))
 
 .factory('marketCreationReducer', function () {
@@ -51,13 +52,19 @@ angular.module('predictionMarketApp')
           availMrktAddrs: list,
           marketsDetails: action.details,
         })
+      case 'SET_MARKET_DETAILS':
+        return Object.assign({}, state, {
+          marketsDetails: Object.assign({}, state.marketsDetails, {
+            [action.marketDetails.address]: action.marketDetails
+          })
+        })
       default:
         return state
     }
   }
 })
 
-.factory('sagaMarkets', function ($rootScope, $log, $q, predictionMarketService) {
+.factory('sagaMarkets', function ($rootScope, $log, predictionMarketService) {
   let effects = ReduxSaga.effects
   let getSelectedAccount = state => state.selectedAccount
   let marketsIndex = PredictionMarketsIndex.deployed()
@@ -66,6 +73,7 @@ angular.module('predictionMarketApp')
       ReduxSaga.takeLatest('REQ_NEW_MARKET', reqNewMarket),
       ReduxSaga.takeEvery('REQ_PUBLISH', reqPublish),
       ReduxSaga.takeLatest('REQ_REFRESH_MARKETS', retrieveMarkets),
+      ReduxSaga.takeEvery('REQ_REFRESH_MARKET', reqRefreshMarket),
     ]
   }
 
@@ -109,7 +117,7 @@ angular.module('predictionMarketApp')
       $log.info('MarketsIndex.addMarket() txid:', txid)
       yield [effects.put({type: 'SET_MARKET_CREATED', address: null}),
              effects.put({type: 'SET_PUBLISH_TXID', txid})]
-      yield effects.call(predictionMarketService.getTransactionReceiptMined, txid)
+      yield effects.call(predictionMarketService.transactionReceiptMined, txid)
       yield* retrieveMarkets()
 
     } catch (error) {
@@ -122,6 +130,11 @@ angular.module('predictionMarketApp')
     let list = yield fetchMarketsList()
     let details = yield fetchMarketsDetails(list)
     yield effects.put({type: 'SET_MARKETS', list, details})
+  }
+
+  function* reqRefreshMarket(action) {
+    let marketDetails = yield loadMarketData(action.marketAddress)
+    yield effects.put({type: 'SET_MARKET_DETAILS', marketDetails})
   }
 
   function* fetchMarketsList() {

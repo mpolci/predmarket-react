@@ -1,4 +1,4 @@
-angular.module('predictionMarketApp').controller('predictionMarketsController', function ($scope, $log, $timeout, $state, $ngRedux, marketsListActions, appState, predictionMarketService) {
+angular.module('predictionMarketApp').controller('predictionMarketsController', function ($scope, $log, $timeout, $state, $ngRedux, marketsListActions, marketOperationsActions, appState, predictionMarketService) {
   var self = this
   angular.extend(this, {
     // availMrktAddrs: appState.markets.availMrktAddrs,
@@ -20,7 +20,7 @@ angular.module('predictionMarketApp').controller('predictionMarketsController', 
   self.reqRefreshMarkets()
 
   function selectMarket(addr) {
-    appState.marketOperations.selectedMarket = addr
+    $ngRedux.dispatch(marketOperationsActions.reqSelectMarket(addr))
     $state.go('market')
   }
 })

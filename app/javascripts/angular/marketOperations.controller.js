@@ -1,9 +1,7 @@
-angular.module('predictionMarketApp').controller('marketOperationsController', function ($scope, $log, $timeout, appState, predictionMarketService) {
+angular.module('predictionMarketApp').controller('marketOperationsController', function ($scope, $log, $timeout, $ngRedux, predictionMarketService, marketOperationsActions) {
   var is = predictionMarketService.is
-  var mktOps = appState.marketOperations
   var self = this
   angular.extend(this, {
-    marketOperations: mktOps,
     details: null,
     doBid,
     doRefresh,
@@ -22,98 +20,74 @@ angular.module('predictionMarketApp').controller('marketOperationsController', f
   })
   var show = self.show
 
+  let unsubscribe = $ngRedux.connect(state => ({
+    marketOperations: state.marketOperations,
+    details: state.markets.marketsDetails[state.marketOperations.selectedMarket]
+  }), marketOperationsActions)(this);
+  $scope.$on('$destroy', unsubscribe);
+
   function setShowsWithdrawPrize() {
-    show.withdrawPrize = (is.yes(self.details.getVerdict) && mktOps.yesBets > 0) || (is.no(self.details.getVerdict) && mktOps.noBets > 0)
+    show.withdrawPrize = (is.yes(self.details.getVerdict) && self.marketOperations.yesBets > 0) || (is.no(self.details.getVerdict) && self.marketOperations.noBets > 0)
   }
 
   function setShows() {
-    var details = self.details
+    let details = self.details
+    let selectedAccountAddress = $ngRedux.getState().selectedAccount.address
     if (!details) {
       show.bid = show.respond = show.withdrawFees = show.bid = show.withdrawUnresponded = show.destroy = false
     } else {
       show.bid = !is.expiredMarket(details.expiration)
       show.respond =
-        appState.selectedAccount.address === details.responder
+        selectedAccountAddress === details.responder
         && is.unresponded(details.getVerdict)
         && is.expiredMarket(details.expiration)
         && !is.expiredResponseTime(details.expiration)
       show.withdrawFees =
-        appState.selectedAccount.address === details.owner
+        selectedAccountAddress === details.owner
         && !is.unresponded(details.getVerdict)
         && details.feeRate > 0
       show.withdrawUnresponded = is.unresponded(details.getVerdict) && is.expiredResponseTime(details.expiration),
       show.destroy =
-        appState.selectedAccount.address === details.owner
+        selectedAccountAddress === details.owner
         && is.expiredWithdraw(details.expiration)
       setShowsWithdrawPrize()
     }
   }
 
-  var updateDetails = function () {
-    self.details = appState.markets.marketsDetails[mktOps.selectedMarket]
-    setShows()
-  }
-
-  $scope.$watch(() => mktOps.selectedMarket, (newv, oldv) => { updateDetails(); refreshBets() } )
-  $scope.$watch(() => appState.selectedAccount.address, (newv, oldv) => { refreshBets(); setShows(); } )
-  $scope.$watch(() => mktOps.selectedMarket && appState.markets.marketsDetails[mktOps.selectedMarket], updateDetails)
+  $scope.$watch(() => self.marketOperations.selectedMarket, (newv, oldv) => { setShows(); } )
+  $scope.$watch(() => $ngRedux.getState().selectedAccount.address, (newv, oldv) => {
+    if ($ngRedux.getState().selectedAccount.address && self.marketOperations.selectedMarket)
+      refreshBets();
+    setShows();
+  })
+  $scope.$watch(() => self.marketOperations.selectedMarket && $ngRedux.getState().markets.marketsDetails[self.marketOperations.selectedMarket], setShows)
 
   function refreshBets() {
-    return !mktOps.selectedMarket || !appState.selectedAccount.address ? null :
-      predictionMarketService.getBets(mktOps.selectedMarket, appState.selectedAccount.address)
-      .then(values => {
-        mktOps.yesBets = values[0]
-        mktOps.noBets = values[1]
-        setShowsWithdrawPrize()
-      })
+    if ($ngRedux.getState().selectedAccount.address) self.reqRefreshBets()
   }
 
   function doBid(what, value) {
-    predictionMarketService.bid(mktOps.selectedMarket, what, value)
-    .then(refreshBets)
-    .then(() => {
-      $timeout(() => $scope.$apply())
-    })
-    .catch($log.error)
+    self.reqBet(self.marketOperations.selectedMarket, what, value)
   }
 
   function doRefresh() {
-    return refreshBets()
-    .then(() => predictionMarketService.loadMarketData(mktOps.selectedMarket))
-    .then(() => {
-      $timeout(() => $scope.$apply())
-    })
-    .catch($log.error)
+    self.reqRefreshMarket(self.marketOperations.selectedMarket)
   }
 
   function doGiveVerdict(what) {
-      predictionMarketService.giveVerdict(mktOps.selectedMarket, what)
-      .then(txid => {
-        $log.info('Verdict given, txid:', txid)
-        doRefresh()
-      })
-      .catch($log.error)
-  }
-
-  function _withdraw(type) {
-    predictionMarketService[type](mktOps.selectedMarket)
-    .then(txid => {
-      $log.info(type, 'txid:', txid)
-      doRefresh()
-    })
-    .catch($log.error)
+    self.reqGiveVerdict(self.marketOperations.selectedMarket, what)
   }
 
   function doWithdrawFees() {
-    _withdraw('withdrawFees')
+    self.reqWithdrawFees(self.marketOperations.selectedMarket)
   }
 
   function doWithdrawPrize() {
-    _withdraw('withdrawPrize')
+    self.reqWithdrawPrize(self.marketOperations.selectedMarket)
   }
 
   function doWithdrawUnresponded() {
-    _withdraw('withdraw')
+    self.reqWithdraw(self.marketOperations.selectedMarket)
   }
 
 })
