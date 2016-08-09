@@ -24,7 +24,7 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
     var counter = parseInt(maxwait / interval)
     let receipt = yield ReduxSaga.effects.cps([web3.eth, web3.eth.getTransactionReceipt], txnHash)
     while (!receipt && counter--) {
-      yield ReduxSaga.utils.delay(interval)
+      yield ReduxSaga.delay(interval)
       receipt = yield ReduxSaga.effects.cps([web3.eth, web3.eth.getTransactionReceipt], txnHash)
     }
     if (receipt) return receipt

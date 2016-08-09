@@ -47,10 +47,11 @@ angular.module('predictionMarketApp')
   return function (state = defaultState, action) {
     switch (action.type) {
       case 'SET_MARKETS':
-        let list = action.list || Object.keys(action.details)
+        let details = action.details || state.marketsDetails || {}
+        let list = action.list || (action.details && Object.keys(action.details))
         return Object.assign({}, state, {
           availMrktAddrs: list,
-          marketsDetails: action.details,
+          marketsDetails: details,
         })
       case 'SET_MARKET_DETAILS':
         return Object.assign({}, state, {
@@ -108,16 +109,17 @@ angular.module('predictionMarketApp')
       if(!action.marketAddress) throw new Error('Missing market address')
 
       let addMarket = marketsIndex.addMarket
-      let txArgs = { from: from.address }
-      let simulationRes = yield effects.call([addMarket, addMarket.call],
-        action.marketAddress, txArgs)
-      $log.debug('addMarket simulation result:', simulationRes)
-      let txid = yield effects.call([marketsIndex, addMarket],
-        action.marketAddress, txArgs)
+      let callArgs = [action.marketAddress, { from: from.address, gas: 150000}]
+      let simulationRes = yield effects.call([addMarket, addMarket.call], ...callArgs)
+      let estimatedGas = yield effects.cps(marketsIndex.contract.addMarket.estimateGas, ...callArgs)
+      $log.debug('addMarket simulation result:', simulationRes, '- estimated gas:', estimatedGas)
+      let txid = yield effects.call([marketsIndex, addMarket], ...callArgs)
+      let transaction = yield effects.cps(web3.eth.getTransaction, txid)
       $log.info('MarketsIndex.addMarket() txid:', txid)
       yield [effects.put({type: 'SET_MARKET_CREATED', address: null}),
-             effects.put({type: 'SET_PUBLISH_TXID', txid})]
-      yield effects.call(predictionMarketService.transactionReceiptMined, txid)
+             effects.put({type: 'SET_BROADCASTED_TXID', txid, transaction})]
+      let receipt = yield effects.call(predictionMarketService.transactionReceiptMined, txid)
+      yield effects.put({type: 'SET_MINED_TXID', txid, receipt}),
       yield* retrieveMarkets()
 
     } catch (error) {
@@ -128,8 +130,10 @@ angular.module('predictionMarketApp')
 
   function* retrieveMarkets() {
     let list = yield fetchMarketsList()
-    let details = yield fetchMarketsDetails(list)
-    yield effects.put({type: 'SET_MARKETS', list, details})
+    yield effects.put({type: 'SET_MARKETS', list})
+    // let details = yield fetchMarketsDetails(list)
+    // yield effects.put({type: 'SET_MARKETS', list, details})
+    yield* updateMarketsDetails(list)
   }
 
   function* reqRefreshMarket(action) {
@@ -155,12 +159,32 @@ angular.module('predictionMarketApp')
     }, {})
   }
 
-  function* fetchMarketsDetails(adressList) {
-    let list = yield adressList.map(addr => loadMarketData(addr))
+  function* fetchMarketsDetails(addressList) {
+    let list = yield addressList.map(addr => loadMarketData(addr))
     let map = arrayToMap(list, 'address')
     $rootScope.$emit('market-list-updated')  //TODO: remove
     return map
   }
+
+  function* updateMarketsDetails(addressList) {
+    function* doPage(list) {
+      let details = yield list.map(addr => loadMarketData(addr))
+      for (let marketDetails of details)
+        yield effects.put({type: 'SET_MARKET_DETAILS', marketDetails})
+    }
+    let pageSize = 3
+    let page = []
+    for (let addr of addressList) {
+      page.push(addr)
+      if (page.length == pageSize) {
+        yield* doPage(page)
+        page = []
+      }
+    }
+    if (page.length > 0) yield* doPage(page)
+    $rootScope.$emit('market-list-updated')  //TODO: remove
+  }
+
 
   function* fetchContractData(contract, fields) {
     let values = yield fields.map(f => effects.call([contract[f], contract[f].call]))
