@@ -9,26 +9,6 @@ angular.module('predictionMarketApp')
   reqWithdraw: (marketAddress) => ({ type: 'REQ_WITHDRAW', marketAddress }),
 }))
 
-.factory('marketOperationsReducer', function () {
-  const defaultState = {
-    selectedMarket: null, // address
-    yesBets: null,
-    noBets: null,
-  }
-  return function (state = defaultState, action) {
-    switch (action.type) {
-      case 'SET_SELECTED_MARKET':
-        return Object.assign({}, state, {
-          selectedMarket: action.marketAddress,
-          yesBets: action.yesBets,
-          noBets: action.noBets
-        })
-      default:
-        return state
-    }
-  }
-})
-
 .factory('sagaMarketOperations', function ($rootScope, $log, predictionMarketService, marketsListActions) {
   let effects = ReduxSaga.effects
   let getSelectedAccount = state => state.selectedAccount
@@ -36,8 +16,6 @@ angular.module('predictionMarketApp')
   let marketsIndex = PredictionMarketsIndex.deployed()
   return function* () {
     yield [
-      ReduxSaga.takeLatest('REQ_SELECT_MARKET', reqSelectMarket),
-      ReduxSaga.takeLatest('REQ_REFRESH_BETS', reqRefreshBets),
       ReduxSaga.takeLatest('REQ_BET', reqBet),
       ReduxSaga.takeLatest('REQ_GIVE_VERDICT', reqGiveVerdict),
       ReduxSaga.takeLatest('REQ_WITHDRAW_FEES', reqWithdrawFees),
@@ -45,35 +23,6 @@ angular.module('predictionMarketApp')
       ReduxSaga.takeLatest('REQ_WITHDRAW', reqWithdraw),
       ReduxSaga.takeEvery('NEW_TX_MARKET_CALL', newTxMarketCall),
     ]
-  }
-
-  function* reqSelectMarket({marketAddress}) {
-    try {
-      yield* refreshBets({marketAddress})
-    } catch (error) {
-      $log.error(error)
-      yield effects.put({type: 'ERR_SELECT_MARKET', error})
-    }
-  }
-
-  function* reqRefreshBets() {
-    try {
-      marketAddress = yield effects.select(state => state.marketOperations.selectedMarket)
-      yield* refreshBets({marketAddress})
-    } catch (error) {
-      $log.error(error)
-      yield effects.put({type: 'ERR_REFRESH_BETS', error})
-    }
-  }
-
-  function* refreshBets({marketAddress}) {
-    let forAddress = (yield effects.select(getSelectedAccount)).address
-    let details = yield effects.select(getMarketDetails, marketAddress)
-    let tokens = yield [
-      effects.call(AnswerToken.at(details.yes).balanceOf.call, forAddress),
-      effects.call(AnswerToken.at(details.no).balanceOf.call, forAddress),
-    ]
-    yield effects.put({type: 'SET_SELECTED_MARKET', marketAddress, yesBets: tokens[0], noBets: tokens[1]})
   }
 
   function* reqBet({marketAddress, what, value}) {
@@ -94,10 +43,7 @@ angular.module('predictionMarketApp')
       $log.info('betting', value, 'on', what, 'to', marketAddress, 'txid:', txid)
       yield effects.call(predictionMarketService.transactionReceiptMined, txid)
       $log.info('Transaction ' + txid + ' mined')
-      yield [
-        effects.put(marketsListActions.reqRefreshMarket(marketAddress)),
-        effects.put({ type: 'REQ_REFRESH_BETS' })
-      ]
+      yield effects.put(marketsListActions.reqRefreshMarket(marketAddress))
     } catch (error) {
       $log.error(error)
       yield effects.put({type: 'ERR_BET', error})

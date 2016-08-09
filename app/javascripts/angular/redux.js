@@ -20,12 +20,13 @@ angular.module('predictionMarketApp')
   }, [sagaProvider.middleware], enhancers)
 })
 .run((saga) => saga())
-.factory('sagaRoot', function (sagaAccounts, sagaMarkets, sagaMarketOperations) {
+.factory('sagaRoot', function (sagaAccounts, sagaMarkets, sagaMarketOperations, sagaMarketOperationsView) {
   return function* sagaRoot() {
     yield [
       ...sagaAccounts(),
       ...sagaMarkets(),
       ...sagaMarketOperations(),
+      ...sagaMarketOperationsView(),
     ]
   }
 

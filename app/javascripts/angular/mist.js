@@ -5,7 +5,7 @@ angular.module('predictionMarketApp').config(function () {
   }
 })
 
-angular.module('predictionMarketApp').service('mistService', function ($state, $log, $ngRedux, marketsListActions, ethereumTimestampFilter) {
+angular.module('predictionMarketApp').service('mistService', function ($state, $log, $ngRedux, marketOperationsViewActions, ethereumTimestampFilter) {
   var self = this
   angular.extend(this, {
     available: typeof(mist) !== "undefined",
@@ -31,7 +31,7 @@ angular.module('predictionMarketApp').service('mistService', function ($state, $
     if (!self.available) return;
     details = $ngRedux.getState().markets.marketsDetails[addr]
     addMenuItem(details.question, ethereumTimestampFilter(details.expiration), () => {
-      $ngRedux.dispatch(marketOperationsActions.reqSelectMarket(addr))
+      $ngRedux.dispatch(marketOperationsViewActions.reqSelectMarket(addr))
       $state.go('market')
     })
     $log.debug('Added Mist menu item for market:', addr)
