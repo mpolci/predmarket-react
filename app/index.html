@@ -33,6 +33,16 @@
     </label>
   </div>
 
+  <div class="action info" ng-controller="transactionInfoController as txInfo">
+    <h2>Status</h2>
+    <div ng-if="txInfo.lastBTx">Created transaction {{ txInfo.lastBTx }}</div>
+    <div ng-if="txInfo.lastMinedTx">Transaction mined {{ txInfo.lastMinedTx }}</div>
+    <div ng-if="txInfo.lastError">
+      <span class="error">Error:</span>
+      <span class="error-details">{{ txInfo.lastError }}</span>
+    </div>
+  </div>
+
   <div class="action" ng-controller="predictionMarketsController as mc">
     <a href ui-sref="create">Create a new prediction market</a>
     <h2>Available predictions markets</h2>

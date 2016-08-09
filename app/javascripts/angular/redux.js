@@ -16,7 +16,8 @@ angular.module('predictionMarketApp')
     selectedAccount: 'selectedAccountReducer',
     markets: 'marketsReducer',
     marketCreation: 'marketCreationReducer',
-    marketOperations: 'marketOperationsReducer'
+    marketOperations: 'marketOperationsReducer',
+    txInfo: 'txinfoReducer'
   }, [sagaProvider.middleware], enhancers)
 })
 .run((saga) => saga())

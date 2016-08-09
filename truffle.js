@@ -17,6 +17,7 @@ module.exports = {
       "javascripts/angular/predictionMarkets.controller.js",
       "javascripts/angular/createMarket.controller.js",
       "javascripts/angular/marketOperations.controller.js",
+      "javascripts/angular/transactionInfo.controller.js",
       "javascripts/angular/mist.js",
       "javascripts/angular/filters.js",
       "javascripts/angular/redux.js",
@@ -24,6 +25,7 @@ module.exports = {
       "javascripts/angular/redux-markets.js",
       "javascripts/angular/redux-market-operations.js",
       "javascripts/angular/redux-market-operations-view.js",
+      "javascripts/angular/redux-txinfo-view.js",
     ],
     "app.css": [
       "stylesheets/app.css"
