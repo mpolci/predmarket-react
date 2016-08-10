@@ -32,29 +32,45 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
     throw new Error('Transaction not mined within ' + maxwait + 'minutes: ' + txid)
   }
 
+  /**
+   * Returns a promise for deploying a contract.
+   * The promise is resolved with an object {txid, getContractAddress}
+   * txid: the broadcasted transaction id
+   * getContractAddress: a new promise that is resolved with the created contract address
+   **/
   function deployContract(truffleContract, ...args) {
     args[args.length-1] = Object.assign({}, args[args.length-1], {
       data: truffleContract.binary
     })
-    let res
-    let rej
-    function callback(err, myContract){
-      if(err) rej(err)
-      if(!myContract.address) {
-        res({
-          txid: myContract.transactionHash,
-          getContractAddress: new Promise(function(resolve, reject) {
-            res = resolve
-            rej = reject
-          })
-        })
-      } else {
-        res(myContract.address)
-      }
-    }
     return new Promise(function(resolve, reject) {
-      res = resolve
-      rej = reject
+      let res
+      let rej = reject
+      let address
+      let error
+      function callback(err, myContract){
+        if(err) {
+          if (rej) rej(err)
+          else error = err
+        } else {
+          rej = null
+          if(!myContract.address) {
+            resolve({
+              txid: myContract.transactionHash,
+              getContractAddress: new Promise(function(resolve, reject) {
+                if (address) resolve(address)
+                else if (error) reject(error)
+                else {
+                  res = resolve
+                  rej = reject
+                }
+              })
+            })
+          } else {
+            if (res) res(myContract.address)
+            else address = myContract.address
+          }
+        }
+      }
       let Contract = web3.eth.contract(truffleContract.abi)
       Contract.new(...args, callback)
     })
