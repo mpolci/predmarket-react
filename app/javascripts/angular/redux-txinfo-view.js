@@ -8,7 +8,8 @@ angular.module('predictionMarketApp')
   return function (state = defaultState, action) {
     if (action.type.startsWith('ERR_')) {
       let msg
-      if (typeof action.error === 'string') msg = action.error
+      if (!action.error) msg = 'Internal error'
+      else if (typeof action.error === 'string') msg = action.error
       else if (action.error.message === 'string') msg = action.error.message
       else msg = action.error.toString()
       return Object.assign({}, state, {

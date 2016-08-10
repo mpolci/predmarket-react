@@ -2,6 +2,7 @@ angular.module('predictionMarketApp')
 .factory('marketOperationsViewActions', () => ({
   reqSelectMarket: (marketAddress) => ({ type: 'REQ_SELECT_MARKET', marketAddress }),
   reqRefreshBets: (marketAddress) => ({ type: 'REQ_REFRESH_BETS' }),
+  // reqRefreshShows: (marketAddress) => ({ type: 'REQ_REFRESH_SHOWS' }),
 }))
 
 .factory('marketOperationsReducer', function () {
@@ -48,14 +49,16 @@ angular.module('predictionMarketApp')
       ReduxSaga.takeLatest('REQ_REFRESH_BETS', reqRefreshBets),
       // ReduxSaga.takeEvery('NEW_TX_MARKET_CALL', newTxMarketCall),
       ReduxSaga.takeEvery('SET_MARKET_DETAILS', setMarketDetails),
-      ReduxSaga.takeLatest('SET_SELECTED_ACCOUNT', setSelectedAccount),
+      ReduxSaga.takeLatest('SET_SELECTED_ACCOUNT', reqRefreshBets),
+      ReduxSaga.takeLatest('SET_SELECTED_MARKET', refreshShows),
+      // ReduxSaga.takeLatest('REQ_REFRESH_SHOWS', reqRefreshBets),
     ]
   }
 
   function* reqSelectMarket({marketAddress}) {
     try {
       yield* refreshBets({marketAddress})
-      yield* refreshShows()
+      // yield* refreshShows()
     } catch (error) {
       $log.error(error)
       yield effects.put({type: 'ERR_SELECT_MARKET', error})
@@ -65,7 +68,8 @@ angular.module('predictionMarketApp')
   function* reqRefreshBets() {
     try {
       let marketAddress = yield effects.select(getSelectedMarket)
-      yield* refreshBets({marketAddress})
+      if (marketAddress)
+        yield* refreshBets({marketAddress})
     } catch (error) {
       $log.error(error)
       yield effects.put({type: 'ERR_REFRESH_BETS', error})
@@ -120,15 +124,6 @@ angular.module('predictionMarketApp')
     let selectedMarket = yield effects.select(getSelectedMarket)
     if (marketDetails.address === selectedMarket) {
       yield effects.put({type: 'REQ_REFRESH_BETS'})
-      yield* refreshShows()
-    }
-  }
-
-  function* setSelectedAccount() {
-    let selectedMarket = yield effects.select(getSelectedMarket)
-    if (selectedMarket) {
-      yield effects.put({type: 'REQ_REFRESH_BETS'})
-      yield* refreshShows()
     }
   }
 
