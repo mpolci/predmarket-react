@@ -119,17 +119,18 @@ angular.module('predictionMarketApp')
       let simulationRes = yield effects.call([addMarket, addMarket.call], ...callArgs)
       let estimatedGas = yield effects.cps(marketsIndex.contract.addMarket.estimateGas, ...callArgs)
       $log.debug('addMarket simulation result:', simulationRes, '- estimated gas:', estimatedGas)
+      if (simulationRes === false)
+        throw new Error( 'Publish error, failed call simulation')
       let txid = yield effects.call([marketsIndex, addMarket], ...callArgs)
       let transaction = yield effects.cps(web3.eth.getTransaction, txid)
       $log.info('MarketsIndex.addMarket() txid:', txid)
-      yield [effects.put({type: 'SET_MARKET_CREATED', address: null}),
-             effects.put({type: 'SET_BROADCASTED_TXID', txid, transaction})]
+      yield effects.put({type: 'SET_BROADCASTED_TXID', txid, transaction})
       let receipt = yield effects.call(predictionMarketService.transactionReceiptMined, txid)
       yield effects.put({type: 'SET_MINED_TXID', txid, receipt})
       if (receipt.gasUsed === transaction.gas)
-        yield effects.put({type: 'ERR_PUBLISH', error: 'Out of gas'})
+        throw new Error('Out of gas')
+      yield effects.put({type: 'SET_MARKET_CREATED', address: null}),
       yield* retrieveMarkets()
-
     } catch (error) {
       $log.error(error)
       yield effects.put({type: 'ERR_PUBLISH', error})
