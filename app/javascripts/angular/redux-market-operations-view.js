@@ -91,38 +91,43 @@ angular.module('predictionMarketApp')
   }
 
   function* refreshShows() {
-    let marketAddress = yield effects.select(getSelectedMarket)
-    let details = yield effects.select(getMarketDetails, marketAddress)
-    let selectedAccountAddress = yield effects.select(getSelectedAccountAddress)
-    let marketOperations = yield effects.select(state => state.marketOperations)
-    let show = {}
-    if (!details) {
-      show.bid = show.respond = show.withdrawFees = show.bid = show.withdrawUnresponded = show.destroy = false
-    } else {
-      show.bid = !is.expiredMarket(details.expiration)
-      show.respond =
-        selectedAccountAddress === details.responder
-        && is.unresponded(details.getVerdict)
-        && is.expiredMarket(details.expiration)
-        && !is.expiredResponseTime(details.expiration)
-      show.withdrawFees =
-        selectedAccountAddress === details.owner
-        && !is.unresponded(details.getVerdict)
-        && details.feeRate > 0
-      show.withdrawUnresponded = is.unresponded(details.getVerdict) && is.expiredResponseTime(details.expiration),
-      show.destroy =
-        selectedAccountAddress === details.owner
-        && is.expiredWithdraw(details.expiration)
-      show.withdrawPrize =
-        (is.yes(details.getVerdict) && marketOperations.yesBets > 0)
-        || (is.no(details.getVerdict) && marketOperations.noBets > 0)
+    try {
+      let marketAddress = yield effects.select(getSelectedMarket)
+      let details = yield effects.select(getMarketDetails, marketAddress)
+      let selectedAccountAddress = yield effects.select(getSelectedAccountAddress)
+      let marketOperations = yield effects.select(state => state.marketOperations)
+      let show = {}
+      if (!details) {
+        show.bid = show.respond = show.withdrawFees = show.bid = show.withdrawUnresponded = show.destroy = false
+      } else {
+        show.bid = !is.expiredMarket(details.expiration)
+        show.respond =
+          selectedAccountAddress === details.responder
+          && is.unresponded(details.getVerdict)
+          && is.expiredMarket(details.expiration)
+          && !is.expiredResponseTime(details.expiration)
+        show.withdrawFees =
+          selectedAccountAddress === details.owner
+          && !is.unresponded(details.getVerdict)
+          && details.feeRate > 0
+        show.withdrawUnresponded = is.unresponded(details.getVerdict) && is.expiredResponseTime(details.expiration),
+        show.destroy =
+          selectedAccountAddress === details.owner
+          && is.expiredWithdraw(details.expiration)
+        show.withdrawPrize =
+          (is.yes(details.getVerdict) && marketOperations.yesBets > 0)
+          || (is.no(details.getVerdict) && marketOperations.noBets > 0)
+      }
+      yield effects.put({type: 'SET_MARKET_OPERATIONS_SHOWS', show})
+    } catch (error) {
+      $log.error(error)
+      yield effects.put({type: 'ERR_INTERNAL', error})
     }
-    yield effects.put({type: 'SET_MARKET_OPERATIONS_SHOWS', show})
   }
 
   function* setMarketDetails({marketDetails}) {
     let selectedMarket = yield effects.select(getSelectedMarket)
-    if (marketDetails.address === selectedMarket) {
+    if (marketDetails && marketDetails.address === selectedMarket) {
       yield effects.put({type: 'REQ_REFRESH_BETS'})
     }
   }
