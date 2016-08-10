@@ -14,27 +14,39 @@ contract('PredictionMarketsIndex', accounts => {
   const from1 = {from: accounts[1]}
   before(() => {
     index = PredictionMarketsIndex.deployed()
+    console.log('PredictionMarketsIndex address', index.address)
   })
 
   // WARNING! interdependent tests on singleton contract
 
+  it('simulation should add first address', () => {
+    return index.addMarket.call(accounts[1])
+    .then(value => assert.equal(value, true))
+  })
   it('should add first address', () => {
     return index.addMarket(accounts[1], from0)
     // .then(value => assert.deepEqual(value, false))
   })
-  it('should contain first address', () => {
+  it('simulation should not add first address', () => {
     return index.addMarket.call(accounts[1])
-    .then(value => assert.equal(value, true))
+    .then(value => assert.equal(value, false))
   })
   it('raw array should contain first address ', () => {
     return index.getAvailableMarketsRawArray.call()
     .then(value => assert.deepEqual(value, [accounts[1]]))
   })
-  it('should not contain second address', () => {
+  it('simulation should add second address', () => {
+    return index.addMarket.call(accounts[2])
+    .then(value => assert.equal(value, true))
+  })
+  it('should add second address', () => {
+    return index.addMarket(accounts[2], from0)
+    // .then(value => assert.deepEqual(value, false))
+  })
+  it('simulation should not add second address', () => {
     return index.addMarket.call(accounts[2])
     .then(value => assert.equal(value, false))
   })
-
   // TODO: more tests
 
 })
