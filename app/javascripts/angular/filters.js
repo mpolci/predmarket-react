@@ -1,5 +1,7 @@
 ;(function () {
 
+  let web3 = new Web3()
+
   let filters = [
     {
       name: 'ethereumTimestamp',

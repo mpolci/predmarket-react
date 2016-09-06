@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="predictionMarketApp">
+<html>
 <head>
   <title>Prediction Markets App</title>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.js"></script>
@@ -9,7 +9,7 @@
   <script src="./app.js"></script>
   <script src="./angularapp.js"></script>
 </head>
-<body>
+<body ng-cloak>
   <h1>PredictionMarket</h1>
 
   <div class="action" ng-controller="controlAccountController as control">
@@ -54,5 +54,12 @@
   <section ui-view></section>
 
   <div ng-controller="mistController"></div>
+
+  <script>
+    window.addEventListener('load', function() {
+      angular.bootstrap(document, ['predictionMarketApp'])
+    })
+  </script>
+
 </body>
 </html>
