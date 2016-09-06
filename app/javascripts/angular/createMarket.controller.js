@@ -12,12 +12,16 @@ angular.module('predictionMarketApp').controller('createMarketController', funct
 
   var marketCreation=self.marketCreation
   $log.debug('createMarketController initialization')
-  marketCreation.question = 'prova'
-  marketCreation.expirationTime = Math.floor(Date.now() / 1000) + 60
-  marketCreation.responder = web3.eth.coinbase
-  marketCreation.feeRate = 100
-  marketCreation.initialPrize = 1000000000000000000
-
+  web3.eth.getCoinbase(function (coinbase) {
+    marketCreationActions.chgMarketCreationArgs({
+      question: 'prova',
+      expirationTime: Math.floor(Date.now() / 1000) + 60,
+      responder: coinbase,
+      feeRate: 100,
+      initialPrize: 1000000000000000000,
+    })
+  })
+  
   function doCreate() {
     self.reqNewMarket(self.marketCreation)
   }

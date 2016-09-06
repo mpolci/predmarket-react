@@ -15,7 +15,7 @@ angular.module('predictionMarketApp')
     created: null,
     question: '',
     expirationTime: Math.floor(Date.now() / 1000) + 60,
-    responder: web3.eth.coinbase,
+    responder: null,
     feeRate: 100,
     initialPrize: 1000000000000000000,
   }
