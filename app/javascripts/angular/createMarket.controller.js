@@ -1,19 +1,20 @@
-angular.module('predictionMarketApp').controller('createMarketController', function ($scope, $timeout, $log, $ngRedux, marketCreationActions, predictionMarketService, mistService) {
+angular.module('predictionMarketApp').controller('createMarketController', function ($scope, $timeout, $log, $ngRedux, marketCreationActions) {
   var self = this
   angular.extend(this, {
     doCreate: doCreate,
     doPublish: doPublish,
   })
 
+  // TODO: the marketCreate state object is not useful. Think how to use it or remove it.
+
   let unsubscribe = $ngRedux.connect(state => ({
-    marketCreation: state.marketCreation,
+    marketCreation: angular.copy(state.marketCreation),
   }), marketCreationActions)(this);
   $scope.$on('$destroy', unsubscribe);
 
-  var marketCreation=self.marketCreation
   $log.debug('createMarketController initialization')
   web3.eth.getCoinbase(function (coinbase) {
-    marketCreationActions.chgMarketCreationArgs({
+    self.chgMarketCreationArgs({
       question: 'prova',
       expirationTime: Math.floor(Date.now() / 1000) + 60,
       responder: coinbase,
