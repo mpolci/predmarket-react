@@ -24,7 +24,7 @@ module.exports = {
       // "javascripts/marketOperations.controller.js",
       // "javascripts/transactionInfo.controller.js",
       // "javascripts/mist.js",
-      // "javascripts/filters.js",
+      "javascripts/filters.js",
       // "javascripts/redux.js",
       // "javascripts/redux-accounts.js",
       // "javascripts/redux-markets.js",
