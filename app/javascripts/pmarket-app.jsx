@@ -6,14 +6,25 @@
 class PMarketApp extends React.Component {
 
   render() {
-    let subview = null;
+    const selectedMarket = null
+
+    let txInfo = {}
+    let subview
+    if (!selectedMarket) {
+      subview = null
+    } else if (selectedMarket === 'create') {
+      subview = <CreateMarket />
+    } else {
+      subview = <Market />
+    }
+
     return (
       <div>
         <h1>PredictionMarket</h1>
 
         <ControlAccountSelection />
 
-        <TransactionInfo />
+        <TransactionInfo txInfo={txInfo}/>
 
         <PredictionMarketsList />
 

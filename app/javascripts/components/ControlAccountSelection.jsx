@@ -1,24 +1,38 @@
+
 class ControlAccountSelection extends React.Component {
+
   render() {
-    return (
-      <div className="action">
-        <h2>Account</h2>
-        <div>
+    let showLocalAccounts = true; // !mistService.available,
+    let localAccountsCheckbox = showLocalAccounts
+      ? <div>
           <label>Use local accounts:
             <input id="local" type="checkbox" /><br/>
           </label>
         </div>
+      : null
+
+    let accounts = ['0x000000000000', '0x000000000001']
+
+    return (
+      <div className="action">
+        <h2>Account</h2>
+
+        {localAccountsCheckbox}
+
         <label>Select a control account before interacting with the contract:
-          <select id="account">
-            <option>$index</option>
+          <select>
+            {accounts.map((a, i) =>
+              <option value={a} key={i}>{i}</option>
+            )}
           </select>
         </label>
+
         <div className="info">
           <span>Address: control.selected.address </span>
           <span>balance: control.selected.balance | unitEther  eth</span>
         </div>
         <label>Gas limit for transactions:
-          <input type="text" ng-model="control.selected.gasLimit" />
+          <input type="text" />
         </label>
       </div>
     )
