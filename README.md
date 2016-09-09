@@ -1,15 +1,11 @@
 # Prediction markets
-This is an exercise for the b9lab course.
+This is an exercise to learn REACT, it is a fork of [b9lab-w4-predmarket](https://github.com/mpolci/b9lab-w4-predmarket).
 
 ## Dependencies
 
-- [truffle](https://github.com/ConsenSys/truffle) 1.x
-- [modified testrpc](https://github.com/Georgi87/testrpc) in order to run tests
+- [truffle](https://github.com/ConsenSys/truffle) 2.x
 
 ## Tests
-The tests use a special RPC call *evm_setTimestamp* provided by the modified
-version of [testrpc from Georgi87](https://github.com/Georgi87/testrpc).
-
 To run tests start `testrpc` then run the command:
 
     truffle test
