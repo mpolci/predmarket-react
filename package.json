@@ -11,7 +11,7 @@
   "author": "Marco Polci",
   "license": "ISC",
   "dependencies": {
-    "eth-lightwallet": "^2.4.3",
+    "eth-lightwallet": "^2.5.2",
     "hooked-web3-provider": "^1.0.0",
     "react": "^15.3.1",
     "react-dom": "^15.3.1",
