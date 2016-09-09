@@ -12,56 +12,5 @@
   <script type="text/javascript" src="./app.js"></script>
   <script type="text/babel" src="./pmarket-app.js"></script>
 
-  <h1>PredictionMarket</h1>
-
-  <div class="action" ng-controller="controlAccountController as control">
-    <h2>Account</h2>
-    <div ng-if="control.showLocalAccounts">
-      <label for="local">Use local accounts:</label>
-      <input id="local" type="checkbox" ng-model="control.localAccounts"><br>
-    </div>
-    <label for="account">Select a control account before interacting with the contract: </label>
-    <select id="account"
-      ng-model="control.selectedAddress"
-      ng-change="control.changeSelectedAccount(control.selectedAddress)">
-      <option ng-repeat="a in control.accountsList" value="{{a}}">{{ $index }}</option>
-    </select>
-    <div class="info">
-      <span>Address: {{ control.selected.address }}</span>
-      <span>balance: {{ control.selected.balance | unitEther }} eth</span>
-    </div>
-    <label>Gas limit for transactions: </label>
-      <input type="text" ng-model="control.selected.gasLimit">
-    </label>
-  </div>
-
-  <div class="action info" ng-controller="transactionInfoController as txInfo">
-    <h2>Status</h2>
-    <div ng-if="txInfo.lastBTx">Created transaction {{ txInfo.lastBTx }}</div>
-    <div ng-if="txInfo.lastMinedTx">Transaction mined {{ txInfo.lastMinedTx }}</div>
-    <div ng-if="txInfo.lastError">
-      <span class="error">Error:</span>
-      <span class="error-details">{{ txInfo.lastError }}</span>
-    </div>
-  </div>
-
-  <div class="action" ng-controller="predictionMarketsController as mc">
-    <a href ui-sref="create">Create a new prediction market</a>
-    <h2>Available predictions markets</h2>
-    <div ng-repeat="addr in mc.availMrktAddrs">
-      <a href ng-click="mc.selectMarket(addr)">{{addr}} - {{mc.marketsDetails[addr].question}}</a>
-    </div>
-  </div>
-
-  <section ui-view></section>
-
-  <div ng-controller="mistController"></div>
-
-  <script>
-    window.addEventListener('load', function() {
-      angular.bootstrap(document, ['predictionMarketApp'])
-    })
-  </script>
-
 </body>
 </html>

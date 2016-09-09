@@ -12,7 +12,12 @@ module.exports = {
       "javascripts/app.js"
     ],
     "pmarket-app.js": [
-      "javascripts/routes.js",
+      "javascripts/pmarket-app.jsx",
+      "javascripts/components/ControlAccountSelection.jsx",
+      "javascripts/components/CreateMarket.jsx",
+      "javascripts/components/Market.jsx",
+      "javascripts/components/PredictionMarketsList.jsx",
+      "javascripts/components/TransactionInfo.jsx",
       "javascripts/predictionMarket.service.js",
       "javascripts/controlAccount.controller.js",
       "javascripts/predictionMarkets.controller.js",
