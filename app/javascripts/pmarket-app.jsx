@@ -34,5 +34,12 @@ class PMarketApp extends React.Component {
     )
   }
 }
-    
-ReactDOM.render(<PMarketApp/>, document.getElementById('pmarket-app'))
+
+let store = initStore()
+
+ReactDOM.render(
+  <ReactRedux.Provider store={store}>
+    <PMarketApp/>
+  </ReactRedux.Provider>
+  , document.getElementById('pmarket-app')
+)

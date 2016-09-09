@@ -9,6 +9,7 @@ module.exports = {
       "javascripts/sagaMonitor.js",
       "../node_modules/react/dist/react.js",
       "../node_modules/react-dom/dist/react-dom.js",
+      "../node_modules/react-redux/dist/react-redux.js",
     ],
     "pmarket-app.js": [
       "javascripts/components/ControlAccountSelection.jsx",
@@ -25,12 +26,12 @@ module.exports = {
       // "javascripts/transactionInfo.controller.js",
       // "javascripts/mist.js",
       "javascripts/filters.js",
-      // "javascripts/redux.js",
+      "javascripts/redux.js",
       // "javascripts/redux-accounts.js",
       // "javascripts/redux-markets.js",
       // "javascripts/redux-market-operations.js",
       // "javascripts/redux-market-operations-view.js",
-      // "javascripts/redux-txinfo-view.js",
+      "javascripts/redux-txinfo-view.js",
     ],
     "app.css": [
       "stylesheets/app.css"

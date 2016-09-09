@@ -1,5 +1,4 @@
-angular.module('predictionMarketApp')
-.factory('txinfoReducer', function () {
+function getTxinfoReducer() {
   const defaultState = {
     lastBTx: null,
     lastMinedTx: null,
@@ -39,4 +38,4 @@ angular.module('predictionMarketApp')
         return state
     }
   }
-})
+}

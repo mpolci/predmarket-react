@@ -15,6 +15,7 @@
     "hooked-web3-provider": "^1.0.0",
     "react": "^15.3.1",
     "react-dom": "^15.3.1",
+    "react-redux": "^4.4.5",
     "redux": "^3.5.2",
     "redux-saga": "^0.11.0"
   }
