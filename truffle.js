@@ -4,10 +4,11 @@ module.exports = {
     "app.js": [
       "../node_modules/eth-lightwallet/dist/lightwallet.js",
       "../node_modules/hooked-web3-provider/build/hooked-web3-provider.js",
-      // "../node_modules/redux/dist/redux.js",
+      "../node_modules/redux/dist/redux.js",
       "../node_modules/redux-saga/dist/redux-saga.js",
       "javascripts/sagaMonitor.js",
-      "../node_modules/ng-redux/dist/ng-redux.js",
+      "../node_modules/react/dist/react.js",
+      "../node_modules/react-dom/dist/react-dom.js",
       "javascripts/app.js"
     ],
     "pmarket-app.js": [
