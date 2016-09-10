@@ -1,4 +1,10 @@
+class MistService {
+  static available() {
+    return typeof(mist) !== "undefined"
+  }
+}
 
+/*
 angular.module('predictionMarketApp').config(function () {
   if (typeof(mist) !== "undefined") {
     mist.menu.setBadge('My Prediction Markets')
@@ -51,3 +57,4 @@ angular.module('predictionMarketApp').controller('mistController', function ($ro
     })
   })
 })
+*/

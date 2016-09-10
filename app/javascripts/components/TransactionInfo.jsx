@@ -11,17 +11,17 @@
 
 class TransactionInfo extends React.Component {
   render () {
-    const txInfo = this.props.txInfo
+    const props = this.props
     const when = (c, node) => c ? node : null
     return (
       <div className="action info">
         <h2>Status</h2>
-        {when(txInfo.lastBTx, <div>Created transaction {txInfo.lastBTx }</div>)}
-        {when(txInfo.lastMinedTx, <div>Transaction mined {txInfo.lastMinedTx }</div>)}
-        {when(txInfo.lastError,
+        {when(props.lastBTx, <div>Created transaction {props.lastBTx }</div>)}
+        {when(props.lastMinedTx, <div>Transaction mined {props.lastMinedTx }</div>)}
+        {when(props.lastError,
           <div>
             <span className="error">Error:</span>
-            <span className="error-details">{txInfo.lastError }</span>
+            <span className="error-details">{props.lastError}</span>
           </div>
         )}
       </div>
@@ -30,5 +30,12 @@ class TransactionInfo extends React.Component {
 }
 
 TransactionInfo.propTypes = {
-  txInfo: React.PropTypes.object.isRequired,
+  lastBTx: React.PropTypes.string,
+  lastMinedTx: React.PropTypes.string,
+  lastError: React.PropTypes.oneOfType([
+    React.PropTypes.string,
+    React.PropTypes.instanceOf(Error)
+  ]),
 }
+
+TransactionInfo = ReactRedux.connect(state => state.txInfo)(TransactionInfo)

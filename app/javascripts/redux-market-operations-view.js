@@ -1,11 +1,12 @@
-angular.module('predictionMarketApp')
-.factory('marketOperationsViewActions', () => ({
-  reqSelectMarket: (marketAddress) => ({ type: 'REQ_SELECT_MARKET', marketAddress }),
-  reqRefreshBets: (marketAddress) => ({ type: 'REQ_REFRESH_BETS' }),
-  // reqRefreshShows: (marketAddress) => ({ type: 'REQ_REFRESH_SHOWS' }),
-}))
+function getMarketOperationsViewActions () {
+  return {
+    reqSelectMarket: (marketAddress) => ({ type: 'REQ_SELECT_MARKET', marketAddress }),
+    reqRefreshBets: (marketAddress) => ({ type: 'REQ_REFRESH_BETS' }),
+    // reqRefreshShows: (marketAddress) => ({ type: 'REQ_REFRESH_SHOWS' }),
+  }
+}
 
-.factory('marketOperationsReducer', function () {
+function getMarketOperationsReducer () {
   const defaultState = {
     selectedMarket: null, // address
     yesBets: null,
@@ -35,9 +36,10 @@ angular.module('predictionMarketApp')
         return state
     }
   }
-})
+}
 
-.factory('sagaMarketOperationsView', function ($rootScope, $log, predictionMarketService, marketsListActions) {
+function getSagaMarketOperationsView () {
+  //$rootScope, $log, predictionMarketService, marketsListActions
   let effects = ReduxSaga.effects
   let getSelectedAccountAddress = state => state.selectedAccount.address
   let getMarketDetails = (state, marketAddress) => state.markets.marketsDetails[marketAddress]
@@ -132,4 +134,4 @@ angular.module('predictionMarketApp')
     }
   }
 
-})
+}

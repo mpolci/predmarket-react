@@ -1,13 +1,14 @@
 
-angular.module('predictionMarketApp')
-.factory('accountsActions', () => {
+function getAccountsActions () {
   return {
     reqRemoteAccounts: () => ({ type: 'REQ_REMOTE_ACCOUNTS' }),
     reqLocalAccounts: (seed, password) => ({ type: 'REQ_LOCAL_ACCOUNTS', seed, password }),
     changeSelectedAccount: (address) => ({ type: 'CHG_SELECTED_ACCOUNT', address}),
+    setGasLimit: (gasLimit) => ({ type: 'SET_GAS_LIMIT', gasLimit}),
   }
-})
-.factory('accountsReducer', function () {
+}
+
+function getAccountsReducer () {
   const defaultState = {
     localAccounts: false,
     list: []
@@ -23,8 +24,9 @@ angular.module('predictionMarketApp')
         return state
     }
   }
-})
-.factory('selectedAccountReducer', function () {
+}
+
+function getSelectedAccountReducer () {
   const defaultState = {
     address: null,
     balance: '',
@@ -37,12 +39,18 @@ angular.module('predictionMarketApp')
           address: action.address,
           balance: action.balance
         })
+      case 'SET_GAS_LIMIT':
+        return Object.assign({}, state, {
+          gasLimit: action.gasLimit,
+        })
       default:
         return state
     }
   }
-})
-.factory('sagaAccounts', function ($log) {
+}
+
+function getSagaAccounts () {
+  const $log = console
   var defaultWeb3Provider = web3.currentProvider
   var passwordProvider = function (callback) {
     var pw = prompt("Please enter password to sign your transaction", "dev_password")
@@ -119,4 +127,4 @@ angular.module('predictionMarketApp')
     })
   }
   
-})
+}

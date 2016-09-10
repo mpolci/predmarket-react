@@ -1,16 +1,20 @@
 
-angular.module('predictionMarketApp')
-.factory('marketCreationActions', () => ({
-  reqNewMarket: (pmArgs) => ({ type: 'REQ_NEW_MARKET', pmArgs }),
-  reqPublish: (marketAddress) => ({ type: 'REQ_PUBLISH', marketAddress }),
-  chgMarketCreationArgs: (args) => ({ type: 'CHG_MARKET_CREATION_ARGS', args }),
-}))
-.factory('marketsListActions', () => ({
-  reqRefreshMarkets: () => ({ type: 'REQ_REFRESH_MARKETS' }),
-  reqRefreshMarket: (marketAddress) => ({ type: 'REQ_REFRESH_MARKET', marketAddress}),
-}))
+function getMarketCreationActions() {
+  return {
+    reqNewMarket: (pmArgs) => ({type: 'REQ_NEW_MARKET', pmArgs}),
+    reqPublish: (marketAddress) => ({type: 'REQ_PUBLISH', marketAddress}),
+    chgMarketCreationArgs: (args) => ({type: 'CHG_MARKET_CREATION_ARGS', args}),
+  }
+}
 
-.factory('marketCreationReducer', function () {
+function getMarketsListActions () {
+  return {
+    reqRefreshMarkets: () => ({type: 'REQ_REFRESH_MARKETS'}),
+    reqRefreshMarket: (marketAddress) => ({type: 'REQ_REFRESH_MARKET', marketAddress}),
+  }
+}
+
+function getMarketCreationReducer () {
   const defaultState = {
     created: null,
     question: '',
@@ -38,8 +42,9 @@ angular.module('predictionMarketApp')
         return state
     }
   }
-})
-.factory('marketsReducer', function () {
+}
+
+function getMarketsReducer () {
   const defaultState = {
     availMrktAddrs: [],
     marketsDetails: { /* '<address>': { ... } */ },
@@ -63,9 +68,13 @@ angular.module('predictionMarketApp')
         return state
     }
   }
-})
+}
 
-.factory('sagaMarkets', function ($rootScope, $log, predictionMarketService) {
+function getSagaMarkets() {
+  const $log = console
+  let $rootScope // FIXME
+  let predictionMarketService = getPredictionMarketService()
+
   let effects = ReduxSaga.effects
   let getSelectedAccount = state => state.selectedAccount
   let marketsIndex = PredictionMarketsIndex.deployed()
@@ -171,7 +180,7 @@ angular.module('predictionMarketApp')
   function* fetchMarketsDetails(addressList) {
     let list = yield addressList.map(addr => loadMarketData(addr))
     let map = arrayToMap(list, 'address')
-    $rootScope.$emit('market-list-updated')  //TODO: remove
+    //$rootScope.$emit('market-list-updated')  //TODO: remove
     return map
   }
 
@@ -191,7 +200,7 @@ angular.module('predictionMarketApp')
       }
     }
     if (page.length > 0) yield* doPage(page)
-    $rootScope.$emit('market-list-updated')  //TODO: remove
+    //$rootScope.$emit('market-list-updated')  //TODO: remove
   }
 
 
@@ -234,5 +243,4 @@ angular.module('predictionMarketApp')
     return marketData
   }
 
-
-})
+}

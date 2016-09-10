@@ -1,14 +1,9 @@
 
-// window.addEventListener('load', function() {
-//   angular.bootstrap(document, ['predictionMarketApp'])
-// })
-
 class PMarketApp extends React.Component {
 
   render() {
     const selectedMarket = null
 
-    let txInfo = {}
     let subview
     if (!selectedMarket) {
       subview = null
@@ -24,7 +19,7 @@ class PMarketApp extends React.Component {
 
         <ControlAccountSelection />
 
-        <TransactionInfo txInfo={txInfo}/>
+        <TransactionInfo />
 
         <PredictionMarketsList />
 
@@ -33,13 +28,23 @@ class PMarketApp extends React.Component {
       </div>
     )
   }
+
+  _onCreate () {
+
+  }
+
 }
 
-let store = initStore()
+window.addEventListener('load', function() {
+  let store = initStore()
 
-ReactDOM.render(
-  <ReactRedux.Provider store={store}>
-    <PMarketApp/>
-  </ReactRedux.Provider>
-  , document.getElementById('pmarket-app')
-)
+  store.dispatch(getAccountsActions().reqRemoteAccounts())
+  store.dispatch(getMarketsListActions().reqRefreshMarkets())
+
+  ReactDOM.render(
+    <ReactRedux.Provider store={store}>
+      <PMarketApp/>
+    </ReactRedux.Provider>
+    , document.getElementById('pmarket-app')
+  )
+})

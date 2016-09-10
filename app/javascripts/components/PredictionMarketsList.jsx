@@ -7,18 +7,18 @@
 // </div>
 
 class PredictionMarketsList extends React.Component {
+
   render() {
-    const availMrktAddrs = ['0x10000000000000000', '0x20000000000000000', ]
-    const marketsDetails = {}
+    const marketsDetails = this.props.marketsDetails
 
     const _getQuestion = addr => marketsDetails[addr] && marketsDetails[addr].question
     return (
       <div className="action">
         <a href='#' onClick={this.props.onCreate}>Create a new prediction market</a>
         <h2>Available predictions markets</h2>
-        {availMrktAddrs.map(addr =>
-          <div>
-            <a href='#' onClick={() => onSelectMarket(addr)}>{addr} - {_getQuestion(addr)}</a>
+        {this.props.availMrktAddrs.map(addr =>
+          <div key={addr}>
+            <a href='#' onClick={() => this.props.onSelectMarket(addr)}>{addr} - {_getQuestion(addr)}</a>
           </div>
         )}
       </div>
@@ -29,4 +29,33 @@ class PredictionMarketsList extends React.Component {
 PredictionMarketsList.propTypes = {
   onCreate: React.PropTypes.func.isRequired,
   onSelectMarket: React.PropTypes.func.isRequired,
+  availMrktAddrs: React.PropTypes.arrayOf(React.PropTypes.string.isRequired).isRequired,
+  marketsDetails: React.PropTypes.objectOf(React.PropTypes.shape({
+    question: React.PropTypes.string,
+  }))
 }
+
+;(function () {
+
+  getMarketsListActions
+
+  const mapStateToProps = state => ({
+    availMrktAddrs: state.markets.availMrktAddrs,
+    marketsDetails: state.markets.marketsDetails,
+  })
+
+  const marketOperationsViewActions = getMarketOperationsViewActions()
+
+  const mapDispatchToProps = (dispatch) => ({
+    onCreate: () => {
+      //TODO
+      // dispatch(toggleTodo(id))
+    },
+    onSelectMarket: (addr) => {
+      dispatch(marketOperationsViewActions.reqSelectMarket(addr))
+    }
+  })
+
+  PredictionMarketsList = ReactRedux.connect(mapStateToProps, mapDispatchToProps)(PredictionMarketsList)
+
+})()

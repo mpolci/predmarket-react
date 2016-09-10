@@ -6,10 +6,10 @@ function initStore() {
     enhancers.push(window.devToolsExtension())
   }
   let root = Redux.combineReducers({
-    // accounts: 'accountsReducer',
-    // selectedAccount: 'selectedAccountReducer',
-    // markets: 'marketsReducer',
-    // marketCreation: 'marketCreationReducer',
+    accounts: getAccountsReducer(),
+    selectedAccount: getSelectedAccountReducer(),
+    markets: getMarketsReducer(),
+    marketCreation: getMarketCreationReducer(),
     // marketOperations: 'marketOperationsReducer',
     txInfo: getTxinfoReducer()
   })
@@ -17,8 +17,8 @@ function initStore() {
 
   let sagaRoot = function* sagaRoot() {
     yield [
-      // ...sagaAccounts(),
-      // ...sagaMarkets(),
+      ...getSagaAccounts()(),
+      ...getSagaMarkets()(),
       // ...sagaMarketOperations(),
       // ...sagaMarketOperationsView(),
     ]

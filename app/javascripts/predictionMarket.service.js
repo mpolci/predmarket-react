@@ -1,23 +1,30 @@
 'use strict'
 
-angular.module('predictionMarketApp').service('predictionMarketService', function ($rootScope, $q, $log) {
-  var self = this
-  const WEEK = 7 * 24 * 60 * 60
-  angular.extend(this, {
-    transactionReceiptMined,
-    deployContract,
-    is: {
-      yes: (verdict) => verdict == 1,
-      no: (verdict) => verdict == 2,
-      unresponded: (verdict) => verdict == 0,
-      expiredMarket: (expiration) => (Date.now()/1000) >= expiration.toNumber(),
-      expiredResponseTime: (expiration) => (Date.now()/1000) >= expiration.toNumber() + WEEK,
-      expiredWithdraw: (expiration) => (Date.now()/1000) >= expiration.toNumber() + 4 * WEEK,
-    },
-  })
+function getPredictionMarketService() {
+  if (!getPredictionMarketService.serviceInstance) {
+    // ', function ($rootScope, $q, $log) {
+    var $log = console
+    const WEEK = 7 * 24 * 60 * 60
+    getPredictionMarketService.serviceInstance = {
+      transactionReceiptMined,
+      deployContract,
+      is: {
+        yes: (verdict) => verdict == 1,
+        no: (verdict) => verdict == 2,
+        unresponded: (verdict) => verdict == 0,
+        expiredMarket: (expiration) => (Date.now() / 1000) >= expiration.toNumber(),
+        expiredResponseTime: (expiration) => (Date.now() / 1000) >= expiration.toNumber() + WEEK,
+        expiredWithdraw: (expiration) => (Date.now() / 1000) >= expiration.toNumber() + 4 * WEEK,
+      },
+    }
 
-  var marketsIndex = PredictionMarketsIndex.deployed()
-  $log.info('PredictionMarketsIndex address:', PredictionMarketsIndex.deployed_address)
+    // var marketsIndex = PredictionMarketsIndex.deployed()
+    $log.info('PredictionMarketsIndex address:', PredictionMarketsIndex.deployed_address)
+  }
+
+  return getPredictionMarketService.serviceInstance
+
+  /************************************************************************************************/
 
   function* transactionReceiptMined (txnHash, interval, maxwait) {
     interval |=  5000  // 5 seconds
@@ -76,4 +83,4 @@ angular.module('predictionMarketApp').service('predictionMarketService', functio
     })
   }
 
-})
+}
