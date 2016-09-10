@@ -206,7 +206,7 @@ function getSagaMarkets() {
 
   function* fetchContractData(contract, fields) {
     let values = yield fields.map(f => effects.call([contract[f], contract[f].call]))
-    data = {}
+    let data = {}
     values.forEach((v,i) => {
       data[fields[i]] = v
     })

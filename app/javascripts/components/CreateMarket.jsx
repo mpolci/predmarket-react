@@ -99,7 +99,7 @@ const PublishMarket = ({address, onPublish}) => (
     <label>Created a new prediction market at address:
       <span>{ address }</span>
     </label>
-    <button onClick={onPublish(address)}>Publish</button>
+    <button onClick={() => onPublish(address)}>Publish</button>
   </div>
 )
 
