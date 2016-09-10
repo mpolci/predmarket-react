@@ -46,16 +46,6 @@ PredictionMarketsList.propTypes = {
 
   const marketOperationsViewActions = getMarketOperationsViewActions()
 
-  const mapDispatchToProps = (dispatch) => ({
-    onCreate: () => {
-      //TODO
-      // dispatch(toggleTodo(id))
-    },
-    onSelectMarket: (addr) => {
-      dispatch(marketOperationsViewActions.reqSelectMarket(addr))
-    }
-  })
-
-  PredictionMarketsList = ReactRedux.connect(mapStateToProps, mapDispatchToProps)(PredictionMarketsList)
+  PredictionMarketsList = ReactRedux.connect(mapStateToProps)(PredictionMarketsList)
 
 })()

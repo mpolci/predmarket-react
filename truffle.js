@@ -32,6 +32,7 @@ module.exports = {
       // "javascripts/redux-market-operations.js",
       "javascripts/redux-market-operations-view.js",
       "javascripts/redux-txinfo-view.js",
+      "javascripts/redux-routes.js",
     ],
     "app.css": [
       "stylesheets/app.css"

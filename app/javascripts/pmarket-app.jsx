@@ -2,12 +2,11 @@
 class PMarketApp extends React.Component {
 
   render() {
-    const selectedMarket = null
 
     let subview
-    if (!selectedMarket) {
+    if (!this.props.route) {
       subview = null
-    } else if (selectedMarket === 'create') {
+    } else if (this.props.route === 'create') {
       subview = <CreateMarket />
     } else {
       subview = <Market />
@@ -21,19 +20,37 @@ class PMarketApp extends React.Component {
 
         <TransactionInfo />
 
-        <PredictionMarketsList />
+        <PredictionMarketsList
+          onCreate={this.props.onCreate}
+          onSelectMarket={this.props.onSelectMarket}
+        />
 
         {subview}
 
       </div>
     )
   }
-
-  _onCreate () {
-
-  }
-
 }
+
+;(function () {
+  const routeAction = getRouteAction()
+  const marketOperationsViewActions = getMarketOperationsViewActions()
+
+  const mapStateToProps = state => ({
+    route: state.route
+  })
+
+  const mapDispatchToProps = (dispatch) => ({
+    onCreate: () => dispatch(routeAction.setView('create')),
+    onSelectMarket: (addr) => {
+      dispatch(routeAction.setView('market'))
+      dispatch(marketOperationsViewActions.reqSelectMarket(addr))
+    }
+  })
+
+  PMarketApp = ReactRedux.connect(mapStateToProps, mapDispatchToProps)(PMarketApp)
+
+})()
 
 window.addEventListener('load', function() {
   let store = initStore()

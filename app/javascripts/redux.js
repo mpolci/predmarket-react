@@ -10,8 +10,9 @@ function initStore() {
     selectedAccount: getSelectedAccountReducer(),
     markets: getMarketsReducer(),
     marketCreation: getMarketCreationReducer(),
-    // marketOperations: 'marketOperationsReducer',
-    txInfo: getTxinfoReducer()
+    marketOperations: getMarketOperationsReducer(),
+    txInfo: getTxinfoReducer(),
+    route: getRouteReducer()
   })
   let store = Redux.createStore(root, Redux.compose(...enhancers))
 
