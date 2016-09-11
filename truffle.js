@@ -29,7 +29,7 @@ module.exports = {
       "javascripts/redux.js",
       "javascripts/redux-accounts.js",
       "javascripts/redux-markets.js",
-      // "javascripts/redux-market-operations.js",
+      "javascripts/redux-market-operations.js",
       "javascripts/redux-market-operations-view.js",
       "javascripts/redux-txinfo-view.js",
       "javascripts/redux-routes.js",

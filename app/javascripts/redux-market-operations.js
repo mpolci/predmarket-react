@@ -1,15 +1,20 @@
-angular.module('predictionMarketApp')
-.factory('marketOperationsActions', () => ({
-  reqSelectMarket: (marketAddress) => ({ type: 'REQ_SELECT_MARKET', marketAddress }),
-  reqRefreshBets: (marketAddress) => ({ type: 'REQ_REFRESH_BETS' }),
-  reqBet: (marketAddress, what, value) => ({ type: 'REQ_BET', marketAddress, what, value }),
-  reqGiveVerdict: (marketAddress, what) => ({ type: 'REQ_GIVE_VERDICT', marketAddress, what }),
-  reqWithdrawFees: (marketAddress) => ({ type: 'REQ_WITHDRAW_FEES', marketAddress }),
-  reqWithdrawPrize: (marketAddress) => ({ type: 'REQ_WITHDRAW_PRIZE', marketAddress }),
-  reqWithdraw: (marketAddress) => ({ type: 'REQ_WITHDRAW', marketAddress }),
-}))
+function getMarketOperationsActions () {
+  return {
+    reqSelectMarket: (marketAddress) => ({ type: 'REQ_SELECT_MARKET', marketAddress }),
+    reqRefreshBets: (marketAddress) => ({ type: 'REQ_REFRESH_BETS' }),
+    reqBet: (marketAddress, what, value) => ({ type: 'REQ_BET', marketAddress, what, value }),
+    reqGiveVerdict: (marketAddress, what) => ({ type: 'REQ_GIVE_VERDICT', marketAddress, what }),
+    reqWithdrawFees: (marketAddress) => ({ type: 'REQ_WITHDRAW_FEES', marketAddress }),
+    reqWithdrawPrize: (marketAddress) => ({ type: 'REQ_WITHDRAW_PRIZE', marketAddress }),
+    reqWithdraw: (marketAddress) => ({ type: 'REQ_WITHDRAW', marketAddress }),
+  }
+}
 
-.factory('sagaMarketOperations', function ($rootScope, $log, predictionMarketService, marketsListActions) {
+function getSagaMarketOperations () {
+  const $log = console
+  const predictionMarketService = getPredictionMarketService()
+  const marketsListActions = getMarketsListActions()
+
   let effects = ReduxSaga.effects
   let getSelectedAccount = state => state.selectedAccount
   let getMarketDetails = (state, marketAddress) => state.markets.marketsDetails[marketAddress]
@@ -135,4 +140,4 @@ angular.module('predictionMarketApp')
   }
 
 
-})
+}

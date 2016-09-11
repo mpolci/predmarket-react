@@ -39,7 +39,9 @@ function getMarketOperationsReducer () {
 }
 
 function getSagaMarketOperationsView () {
-  //$rootScope, $log, predictionMarketService, marketsListActions
+  const $log = console
+  const predictionMarketService = getPredictionMarketService()
+
   let effects = ReduxSaga.effects
   let getSelectedAccountAddress = state => state.selectedAccount.address
   let getMarketDetails = (state, marketAddress) => state.markets.marketsDetails[marketAddress]

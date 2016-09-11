@@ -20,8 +20,8 @@ function initStore() {
     yield [
       ...getSagaAccounts()(),
       ...getSagaMarkets()(),
-      // ...sagaMarketOperations(),
-      // ...sagaMarketOperationsView(),
+      ...getSagaMarketOperations()(),
+      ...getSagaMarketOperationsView()(),
     ]
   }
   sagaMiddleware.run(sagaRoot)
